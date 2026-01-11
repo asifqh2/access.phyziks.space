@@ -138,7 +138,7 @@ export default function PdfDownloadButton({ title }: PdfDownloadButtonProps) {
       `;
       document.head.appendChild(printStyles);
       
-      if (method === 'share' && navigator.share && isMobile()) {
+      if (method === 'share' && typeof navigator !== 'undefined' && 'share' in navigator && isMobile()) {
         // Mobile sharing approach
         const printWindow = window.open('', '_blank');
         if (printWindow) {
@@ -240,7 +240,7 @@ export default function PdfDownloadButton({ title }: PdfDownloadButtonProps) {
               <Monitor className="w-4 h-4" />
               Print/Save as PDF
             </button>
-            {navigator.share && (
+            {typeof navigator !== 'undefined' && 'share' in navigator && (
               <button
                 onClick={() => generatePdf('share')}
                 className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-100 rounded text-sm"
