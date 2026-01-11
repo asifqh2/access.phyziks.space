@@ -1,0 +1,493 @@
+[
+  {
+    "id": "physics-numerical-comprehensive",
+    "title": "Physics Numerical Problems - Comprehensive Test",
+    "description": "<p>Master physics with <strong>numerical problems</strong> covering mechanics, thermodynamics, waves, and electricity. Includes <em>KaTeX mathematical expressions</em> and multiple question formats.</p>",
+    "subject": "Physics",
+    "difficulty": "hard",
+    "timeLimit": 45,
+    "questions": [
+      {
+        "id": "q1-multiple-choice",
+        "question": "<p>A car accelerates from rest with <span class=\"katex\">\\(a = 2 \\text{ m/s}^2\\)</span> for <span class=\"katex\">\\(t = 5\\text{ s}\\)</span>. Distance traveled?</p><p><strong>Formula:</strong> <span class=\"katex\">\\(s = ut + \\frac{1}{2}at^2\\)</span></p>",
+        "options": [
+          "20 m",
+          "25 m",
+          "30 m",
+          "35 m"
+        ],
+        "correctAnswer": 1,
+        "explanation": "<p><span class=\"katex\">\\(s = 0 + \\frac{1}{2} \\times 2 \\times 25 = 25\\text{ m}\\)</span></p>",
+        "type": "multiple-choice"
+      },
+      {
+        "id": "q2-true-false",
+        "question": "<p>Newton's second law: <span class=\"katex\">\\(F = ma\\)</span></p><p>If mass doubles and acceleration halves, force remains constant.</p>",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(F = (2m)(\\frac{a}{2}) = ma\\)</span> ✓</p>",
+        "type": "true-false"
+      },
+      {
+        "id": "q3-fill-blank",
+        "question": "<p>Potential energy: <span class=\"katex\">\\(PE = mgh\\)</span></p><p>For <span class=\"katex\">\\(m=2\\text{kg}, h=10\\text{m}, g=10\\text{m/s}^2\\)</span>, PE = ____ J</p>",
+        "options": [
+          "200"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(PE = 2 \\times 10 \\times 10 = 200\\text{ J}\\)</span></p>",
+        "type": "fill-blank"
+      },
+      {
+        "id": "q4-match-pairs",
+        "question": "<p>Match physics quantities with units:</p>",
+        "options": [
+          "Force",
+          "Newton (N)",
+          "Energy",
+          "Joule (J)",
+          "Power",
+          "Watt (W)",
+          "Pressure",
+          "Pascal (Pa)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Force-Newton, Energy-Joule, Power-Watt, Pressure-Pascal</p>",
+        "type": "match-pairs"
+      },
+      {
+        "id": "q5-drag-drop",
+        "question": "<p>Arrange in order of increasing energy:</p><p><span class=\"katex\">\\(E_1 = 5\\text{J}, E_2 = 15\\text{J}, E_3 = 10\\text{J}, E_4 = 2\\text{J}\\)</span></p>",
+        "options": [
+          "E₄ (2J)",
+          "E₁ (5J)",
+          "E₃ (10J)",
+          "E₂ (15J)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Ascending order: 2J → 5J → 10J → 15J</p>",
+        "type": "drag-drop"
+      },
+      {
+        "id": "q6-card-match",
+        "question": "<p>Match wave properties:</p>",
+        "options": [
+          "Frequency",
+          "Frequency",
+          "Wavelength",
+          "Wavelength",
+          "Amplitude",
+          "Amplitude",
+          "Period",
+          "Period"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Match identical wave property pairs</p>",
+        "type": "card-match"
+      },
+      {
+        "id": "q7-card-sorting",
+        "question": "<p>Sort into Scalar vs Vector quantities:</p>",
+        "options": [
+          "Speed",
+          "Mass",
+          "Energy",
+          "Velocity",
+          "Force",
+          "Acceleration"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Scalars: Speed, Mass, Energy | Vectors: Velocity, Force, Acceleration</p>",
+        "type": "card-sorting",
+        "categories": [
+          "Scalar",
+          "Vector"
+        ]
+      },
+      {
+        "id": "q8-flashcards",
+        "question": "<p>Study these physics formulas:</p>",
+        "options": [
+          "<span class=\"katex\">\\(F = ma\\)</span>",
+          "<span class=\"katex\">\\(E = mc^2\\)</span>",
+          "<span class=\"katex\">\\(P = IV\\)</span>",
+          "<span class=\"katex\">\\(v = f\\lambda\\)</span>"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Key physics equations for reference</p>",
+        "type": "flashcards"
+      },
+      {
+        "id": "q9-slider-scale",
+        "question": "<p>Lens formula: <span class=\"katex\">\\(\\frac{1}{f} = \\frac{1}{u} + \\frac{1}{v}\\)</span></p><p>If <span class=\"katex\">\\(u=20\\text{cm}, f=10\\text{cm}\\)</span>, find <span class=\"katex\">\\(v\\)</span> (0-50cm):</p>",
+        "options": [
+          "20"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(\\frac{1}{v} = \\frac{1}{10} - \\frac{1}{20} = \\frac{1}{20}\\)</span>, so <span class=\"katex\">\\(v = 20\\text{cm}\\)</span></p>",
+        "type": "slider-scale",
+        "minValue": 0,
+        "maxValue": 50
+      },
+      {
+        "id": "q10-hotspot-image",
+        "question": "<p>Click on the center of mass for this system:</p>",
+        "options": [
+          "center"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Center of mass is the balance point</p>",
+        "type": "hotspot-image",
+        "imageUrl": "",
+        "hotspots": [
+          {
+            "x": 50,
+            "y": 50,
+            "correct": true
+          }
+        ]
+      },
+      {
+        "id": "q11-essay",
+        "question": "<p>Explain Newton's three laws of motion with examples:</p>",
+        "options": [
+          "Open response"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>1st: Inertia, 2nd: F=ma, 3rd: Action-Reaction</p>",
+        "type": "essay"
+      },
+      {
+        "id": "q12-short-answer",
+        "question": "<p>Calculate photon energy: <span class=\"katex\">\\(E = hf\\)</span></p><p><span class=\"katex\">\\(h = 6.63 \\times 10^{-34}\\text{J⋅s}, f = 5 \\times 10^{14}\\text{Hz}\\)</span></p>",
+        "options": [
+          "3.315e-19"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(E = 6.63 \\times 10^{-34} \\times 5 \\times 10^{14} = 3.315 \\times 10^{-19}\\text{J}\\)</span></p>",
+        "type": "short-answer"
+      },
+      {
+        "id": "q13-numeric",
+        "question": "<p>Ohm's law: <span class=\"katex\">\\(V = IR\\)</span></p><p>If <span class=\"katex\">\\(I = 2\\text{A}, R = 15\\Omega\\)</span>, find V:</p>",
+        "options": [
+          "30"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(V = 2 \\times 15 = 30\\text{V}\\)</span></p>",
+        "type": "numeric"
+      },
+      {
+        "id": "q14-ordering",
+        "question": "<p>Order steps for projectile motion analysis:</p>",
+        "options": [
+          "Identify initial velocity components",
+          "Apply kinematic equations",
+          "Find time of flight",
+          "Calculate range and height"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Logical sequence for projectile analysis</p>",
+        "type": "ordering"
+      },
+      {
+        "id": "q15-matrix",
+        "question": "<p>Complete the circuit matrix:</p><table class=\"border mx-auto\"><tr><th class=\"border p-2\">R(Ω)</th><th class=\"border p-2\">I(A)</th><th class=\"border p-2\">V(V)</th></tr><tr><td class=\"border p-2\">10</td><td class=\"border p-2\">3</td><td class=\"border p-2\">?</td></tr></table>",
+        "options": [
+          "30"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(V = IR = 3 \\times 10 = 30\\text{V}\\)</span></p>",
+        "type": "matrix"
+      },
+      {
+        "id": "q16-word-cloud",
+        "question": "<p>Select physics terms related to motion:</p>",
+        "options": [
+          "Velocity",
+          "Acceleration",
+          "Temperature",
+          "Displacement",
+          "Voltage",
+          "Momentum"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Motion terms: Velocity, Acceleration, Displacement, Momentum</p>",
+        "type": "word-cloud"
+      },
+      {
+        "id": "q17-timeline",
+        "question": "<p>Arrange physics discoveries chronologically:</p>",
+        "options": [
+          "Newton's Laws (1687)",
+          "Ohm's Law (1827)",
+          "Maxwell's Equations (1865)",
+          "Einstein's Relativity (1905)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Chronological order of major physics discoveries</p>",
+        "type": "timeline"
+      },
+      {
+        "id": "q18-puzzle",
+        "question": "<p>Solve: If <span class=\"katex\">\\(KE = \\frac{1}{2}mv^2\\)</span> and <span class=\"katex\">\\(PE = mgh\\)</span>, find total energy when <span class=\"katex\">\\(m=2kg, v=5m/s, h=3m, g=10m/s^2\\)</span></p>",
+        "options": [
+          "85"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p><span class=\"katex\">\\(KE = \\frac{1}{2} \\times 2 \\times 25 = 25J\\)</span>, <span class=\"katex\">\\(PE = 2 \\times 10 \\times 3 = 60J\\)</span>, Total = 85J</p>",
+        "type": "puzzle"
+      },
+      {
+        "id": "q19-spinner-wheel",
+        "question": "<p>Spin to select a physics constant:</p>",
+        "options": [
+          "c (3×10⁸ m/s)",
+          "g (9.8 m/s²)",
+          "h (6.63×10⁻³⁴ J⋅s)",
+          "e (1.6×10⁻¹⁹ C)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Fundamental physics constants</p>",
+        "type": "spinner-wheel"
+      },
+      {
+        "id": "q20-memory-game",
+        "question": "<p>Match physics equations with their names:</p>",
+        "options": [
+          "F=ma",
+          "Newton's 2nd Law",
+          "E=mc²",
+          "Mass-Energy",
+          "P=IV",
+          "Electrical Power",
+          "v=fλ",
+          "Wave Equation"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Match equations to their physics law names</p>",
+        "type": "memory-game"
+      },
+      {
+        "id": "q21-crossword",
+        "question": "<p>Physics crossword clue: 'Rate of change of velocity' (12 letters)</p>",
+        "options": [
+          "ACCELERATION"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Acceleration is the rate of change of velocity</p>",
+        "type": "crossword"
+      },
+      {
+        "id": "q22-word-search",
+        "question": "<p>Find physics terms in the grid:</p>",
+        "options": [
+          "FORCE",
+          "ENERGY",
+          "POWER",
+          "WAVE"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Locate all physics terms in the word search</p>",
+        "type": "word-search"
+      },
+      {
+        "id": "q23-drawing",
+        "question": "<p>Draw a free body diagram for a block on an inclined plane:</p>",
+        "options": [
+          "Drawing canvas"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Show weight, normal force, and friction forces</p>",
+        "type": "drawing"
+      },
+      {
+        "id": "q24-audio-response",
+        "question": "<p>Record your explanation of the photoelectric effect:</p>",
+        "options": [
+          "Audio recording"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Explain how light ejects electrons from metal surfaces</p>",
+        "type": "audio-response"
+      },
+      {
+        "id": "q25-video-response",
+        "question": "<p>Create a video demonstrating conservation of momentum:</p>",
+        "options": [
+          "Video recording"
+        ],
+        "correctAnswer": 0,
+        "explanation": "<p>Show collision experiment demonstrating momentum conservation</p>",
+        "type": "video-response"
+      }
+    ],
+    "tags": [
+      "physics",
+      "numerical",
+      "mechanics",
+      "thermodynamics",
+      "waves",
+      "electricity",
+      "optics",
+      "quantum",
+      "katex",
+      "comprehensive"
+    ],
+    "createdAt": "2026-01-02T10:00:00.000Z",
+    "updatedAt": "2026-01-11T04:53:59.260Z",
+    "isActive": false,
+    "maxAttempts": 3,
+    "passingScore": 70
+  },
+  {
+    "id": "complete-interactive-quiz",
+    "title": "Ultimate Interactive Quiz - All Formats",
+    "description": "Experience every interactive format: Multiple Choice, Drag & Drop, Card Matching, True/False, Fill Blank, Card Sorting, Flashcards, Slider Scale, and Hotspot Image!",
+    "subject": "Interactive Learning",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "questions": [
+      {
+        "id": "q1-multiple-choice",
+        "question": "What is the largest planet in our solar system?",
+        "options": [
+          "Earth",
+          "Mars",
+          "Jupiter",
+          "Saturn"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Jupiter is the largest planet in our solar system.",
+        "type": "multiple-choice"
+      },
+      {
+        "id": "q2-drag-drop",
+        "question": "Arrange these numbers in ascending order:",
+        "options": [
+          "5",
+          "2",
+          "8",
+          "1"
+        ],
+        "correctAnswer": 0,
+        "explanation": "The correct order is 1, 2, 5, 8.",
+        "type": "drag-drop"
+      },
+      {
+        "id": "q3-card-match",
+        "question": "Find matching pairs by clicking cards:",
+        "options": [
+          "Dog",
+          "Dog",
+          "Tree",
+          "Tree",
+          "Car",
+          "Car",
+          "House",
+          "House"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Match all pairs to complete this challenge.",
+        "type": "card-match"
+      },
+      {
+        "id": "q4-true-false",
+        "question": "The sun is a star.",
+        "options": [
+          "True",
+          "False"
+        ],
+        "correctAnswer": 0,
+        "explanation": "The sun is indeed a star - it's the closest star to Earth.",
+        "type": "true-false"
+      },
+      {
+        "id": "q5-fill-blank",
+        "question": "The capital of Japan is ____.",
+        "options": [
+          "Tokyo"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Tokyo is the capital city of Japan.",
+        "type": "fill-blank"
+      },
+      {
+        "id": "q6-card-sorting",
+        "question": "Sort these items into their correct categories:",
+        "options": [
+          "Apple",
+          "Carrot",
+          "Banana",
+          "Broccoli",
+          "Orange",
+          "Spinach"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Fruits: Apple, Banana, Orange. Vegetables: Carrot, Broccoli, Spinach.",
+        "type": "card-sorting",
+        "categories": [
+          "Fruits",
+          "Vegetables"
+        ]
+      },
+      {
+        "id": "q7-flashcards",
+        "question": "Study these math facts:",
+        "options": [
+          "2 + 2 = 4",
+          "3 × 3 = 9",
+          "5 - 1 = 4",
+          "10 ÷ 2 = 5"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Review all flashcards to learn basic math facts.",
+        "type": "flashcards"
+      },
+      {
+        "id": "q8-slider-scale",
+        "question": "Rate your confidence in math (0-100):",
+        "options": [
+          "50"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Any rating is acceptable - this measures your confidence level.",
+        "type": "slider-scale",
+        "minValue": 0,
+        "maxValue": 100
+      },
+      {
+        "id": "q9-hotspot-image",
+        "question": "Click on the center of this target area:",
+        "options": [
+          "center"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Click anywhere on the target area to complete this question.",
+        "type": "hotspot-image",
+        "imageUrl": "",
+        "hotspots": [
+          {
+            "x": 50,
+            "y": 50,
+            "correct": true
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "complete",
+      "interactive",
+      "all-formats",
+      "demo"
+    ],
+    "createdAt": "2026-01-01T19:00:00.000Z",
+    "updatedAt": "2026-01-02T04:30:00.400Z",
+    "isActive": false,
+    "maxAttempts": 3,
+    "passingScore": 70
+  }
+]

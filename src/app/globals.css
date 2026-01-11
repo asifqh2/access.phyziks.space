@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import 'katex/dist/katex.min.css';
+@import '../styles/blog-post.css';
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Gradient colors for headings */
+.prose h1 {
+  background: linear-gradient(135deg, #1f2937 0%, #7c3aed 50%, #ec4899 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.prose h2 {
+  background: linear-gradient(135deg, #059669 0%, #0891b2 50%, #7c3aed 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.prose h3 {
+  background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #d97706 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.prose h4 {
+  background: linear-gradient(135deg, #7c2d12 0%, #a21caf 50%, #be185d 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.prose h5 {
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Add this to your src/app/globals.css file */
+
+@keyframes particle-1 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  50% { transform: translate(30px, -50px); opacity: 0.6; }
+}
+
+@keyframes particle-2 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+  50% { transform: translate(-40px, 60px); opacity: 0.5; }
+}
+
+@keyframes particle-3 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.25; }
+  50% { transform: translate(50px, 40px); opacity: 0.6; }
+}
+
+@keyframes particle-4 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  50% { transform: translate(-30px, -40px); opacity: 0.5; }
+}
+
+.animate-particle-1 { 
+  animation: particle-1 8s ease-in-out infinite; 
+}
+
+.animate-particle-2 { 
+  animation: particle-2 10s ease-in-out infinite; 
+}
+
+.animate-particle-3 { 
+  animation: particle-3 12s ease-in-out infinite; 
+}
+
+.animate-particle-4 { 
+  animation: particle-4 9s ease-in-out infinite; 
+}
+
+.math-block {
+  display: block;
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 6px 0;
+}
+
+/* KaTeX math styling */
+.katex-display-block {
+  text-align: center;
+  margin: 1rem 0;
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.katex-inline {
+  display: inline;
+  word-break: break-word;
+}
+
+.math-error {
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+/* Ensure KaTeX elements have proper color and mobile responsiveness */
+.katex {
+  color: #1f2937 !important;
+  font-size: 1.1em;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.katex .base {
+  color: #1f2937 !important;
+}
+
+.katex-display {
+  margin: 1em 0 !important;
+  text-align: center !important;
+  overflow-x: auto !important;
+  max-width: 100% !important;
+}
+
+/* Mobile-specific math styling */
+@media (max-width: 768px) {
+  .katex {
+    font-size: 0.9em;
+  }
+  
+  .katex-display-block {
+    padding: 0 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .katex-display {
+    font-size: 0.9em !important;
+  }
+}
+
+/* Math hover effects */
+.math-inline:hover,
+.math-display:hover {
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  cursor: pointer;
+}
