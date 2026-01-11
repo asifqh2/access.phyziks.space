@@ -34,7 +34,7 @@ export function CollapsibleTOC({ items, className }: CollapsibleTOCProps) {
           className={cn(
             "flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors",
             "hover:bg-gray-100 dark:hover:bg-gray-800",
-            hasChildren && "font-medium"
+            hasChildren ? "font-medium" : ""
           )}
           onClick={() => hasChildren && toggleExpanded(item.id)}
         >
@@ -51,9 +51,9 @@ export function CollapsibleTOC({ items, className }: CollapsibleTOCProps) {
             href={`#${item.id}`}
             className={cn(
               "text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors",
-              item.level === 1 && "font-semibold text-base",
-              item.level === 2 && "font-medium",
-              item.level >= 3 && "text-xs"
+              item.level === 1 ? "font-semibold text-base" : "",
+              item.level === 2 ? "font-medium" : "",
+              item.level >= 3 ? "text-xs" : ""
             )}
             onClick={(e) => hasChildren && e.preventDefault()}
           >
@@ -71,7 +71,7 @@ export function CollapsibleTOC({ items, className }: CollapsibleTOCProps) {
   }
 
   return (
-    <nav className={cn("space-y-1", className)}>
+    <nav className={cn("space-y-1", className || "")}>
       <div 
         className="flex items-center justify-between cursor-pointer mb-3 p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         onClick={() => setIsCollapsed(!isCollapsed)}

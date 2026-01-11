@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${post.title} | Blog | Phyziks.space`,
     description: post.description,
-    keywords: post.tags.join(', '),
+    keywords: (post.tags || []).join(', '),
     openGraph: {
       title: post.title,
       description: post.description,
@@ -70,10 +70,10 @@ export default async function BlogDetailPage({ params }: Props) {
         id: post.id,
         title: post.title,
         content: contentWithIds,
-        tags: post.tags,
-        chapters: post.chapters,
-        topics: post.topics,
-        concepts: post.concepts,
+        tags: post.tags || [],
+        chapters: post.chapters || [],
+        topics: post.topics || [],
+        concepts: post.concepts || [],
         category: post.category,
         subject: post.subject
       }}
@@ -159,10 +159,10 @@ export default async function BlogDetailPage({ params }: Props) {
                 {post.description}
               </p>
 
-              {post.tags.length > 0 && (
+              {(post.tags || []).length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <Tag className="w-4 h-4 text-gray-400" />
-                  {post.tags.map((tag) => (
+                  {(post.tags || []).map((tag) => (
                     <span key={tag} className="px-3 py-1 text-sm bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 rounded-full border border-blue-200">
                       #{tag}
                     </span>

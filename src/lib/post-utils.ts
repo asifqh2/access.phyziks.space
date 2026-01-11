@@ -3,10 +3,10 @@ interface Post {
   title: string;
   slug: string;
   category: string;
-  tags: string[];
-  chapters: string[];
-  topics: string[];
-  concepts: string[];
+  tags?: string[];
+  chapters?: string[];
+  topics?: string[];
+  concepts?: string[];
   views?: number;
   subject?: string;
 }
@@ -22,31 +22,37 @@ export function getRelatedContent(currentPost: Post, allPosts: Post[], maxItems:
   // Filter out current post
   const otherPosts = allPosts.filter(p => p.id !== currentPost.id);
 
+  // Ensure arrays exist
+  const currentTags = currentPost.tags || [];
+  const currentChapters = currentPost.chapters || [];
+  const currentTopics = currentPost.topics || [];
+  const currentConcepts = currentPost.concepts || [];
+
   // Get related posts from same category with matching tags/chapters/topics
   const relatedPosts = otherPosts.filter(p => 
     p.category === currentPost.category &&
-    (p.tags.some(tag => currentPost.tags.includes(tag)) ||
-     p.chapters.some(chapter => currentPost.chapters.includes(chapter)) ||
-     p.topics.some(topic => currentPost.topics.includes(topic)) ||
-     p.concepts.some(concept => currentPost.concepts.includes(concept)))
+    ((p.tags || []).some(tag => currentTags.includes(tag)) ||
+     (p.chapters || []).some(chapter => currentChapters.includes(chapter)) ||
+     (p.topics || []).some(topic => currentTopics.includes(topic)) ||
+     (p.concepts || []).some(concept => currentConcepts.includes(concept)))
   ).slice(0, maxItems);
 
   // Get related chapters
   const relatedChapters = otherPosts.filter(p => 
     p.category === 'chapter' &&
-    p.chapters.some(chapter => currentPost.chapters.includes(chapter))
+    (p.chapters || []).some(chapter => currentChapters.includes(chapter))
   ).slice(0, maxItems);
 
   // Get related topics
   const relatedTopics = otherPosts.filter(p => 
     p.category === 'topic' &&
-    p.topics.some(topic => currentPost.topics.includes(topic))
+    (p.topics || []).some(topic => currentTopics.includes(topic))
   ).slice(0, maxItems);
 
   // Get related concepts
   const relatedConcepts = otherPosts.filter(p => 
     p.category === 'concept' &&
-    p.concepts.some(concept => currentPost.concepts.includes(concept))
+    (p.concepts || []).some(concept => currentConcepts.includes(concept))
   ).slice(0, maxItems);
 
   return {
