@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, Plus, MessageCircle, Calendar, BookOpen, Share2, Phone, PhoneOff, Copy, UserPlus, Mic, MicOff, Video, VideoOff } from 'lucide-react';
+import { Users, Plus, MessageCircle, Calendar, BookOpen, Share2, Phone, PhoneOff, Copy, UserPlus, Mic, MicOff, Video, VideoOff, LogOut } from 'lucide-react';
 
 interface StudyGroup {
   id: string;
@@ -22,6 +22,12 @@ interface Message {
   timestamp: string;
 }
 
+interface PeerConnection {
+  id: string;
+  connection: RTCPeerConnection;
+  stream?: MediaStream;
+}
+
 export default function StudyGroups() {
   const [groups, setGroups] = useState<StudyGroup[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<StudyGroup | null>(null);
@@ -33,8 +39,11 @@ export default function StudyGroups() {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
+  const [peers, setPeers] = useState<Map<string, PeerConnection>>(new Map());
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map());
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const messagePollingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const savedGroups = localStorage.getItem('studyGroups');
@@ -112,7 +121,18 @@ export default function StudyGroups() {
 
     const updatedGroups = groups.map(group => {
       if (group.id === groupId && !group.members.includes(userName) && group.members.length < group.maxMembers) {
-        return { ...group, members: [...group.members, userName] };
+        // Add join notification message
+        const joinMessage: Message = {
+          id: Date.now().toString(),
+          author: 'System',
+          content: `${userName} joined the group`,
+          timestamp: new Date().toISOString()
+        };
+        return { 
+          ...group, 
+          members: [...group.members, userName],
+          messages: [...group.messages, joinMessage]
+        };
       }
       return group;
     });
@@ -136,6 +156,27 @@ export default function StudyGroups() {
     setShowJoinForm(false);
     setJoinGroupId('');
     setSelectedGroup(group);
+  };
+
+  const leaveGroup = (groupId: string) => {
+    const updatedGroups = groups.map(group => {
+      if (group.id === groupId && group.members.includes(userName)) {
+        const leaveMessage: Message = {
+          id: Date.now().toString(),
+          author: 'System',
+          content: `${userName} left the group`,
+          timestamp: new Date().toISOString()
+        };
+        return { 
+          ...group, 
+          members: group.members.filter(member => member !== userName),
+          messages: [...group.messages, leaveMessage]
+        };
+      }
+      return group;
+    });
+    saveGroups(updatedGroups);
+    setSelectedGroup(null);
   };
 
   const copyGroupId = (groupId: string) => {
@@ -163,7 +204,7 @@ export default function StudyGroups() {
   const sendMessage = (groupId: string, content: string) => {
     const message: Message = {
       id: Date.now().toString(),
-      author: userName,
+      author: userName || 'System',
       content,
       timestamp: new Date().toISOString()
     };
@@ -174,7 +215,12 @@ export default function StudyGroups() {
         : group
     );
     saveGroups(updatedGroups);
-    setSelectedGroup(updatedGroups.find(g => g.id === groupId) || null);
+    
+    // Update selected group immediately
+    const updatedSelectedGroup = updatedGroups.find(g => g.id === groupId);
+    if (updatedSelectedGroup) {
+      setSelectedGroup(updatedSelectedGroup);
+    }
   };
 
   const startCall = async () => {
@@ -185,6 +231,14 @@ export default function StudyGroups() {
         localVideoRef.current.srcObject = stream;
       }
       setIsInCall(true);
+      
+      connectToSignaling();
+      
+      if (selectedGroup) {
+        sendMessage(selectedGroup.id, `${userName} joined the call`);
+      }
+      
+      startMessagePolling();
     } catch (error) {
       alert('Camera/microphone access denied');
     }
@@ -195,9 +249,27 @@ export default function StudyGroups() {
       localStream.getTracks().forEach(track => track.stop());
       setLocalStream(null);
     }
+    
+    peers.forEach(peer => peer.connection.close());
+    setPeers(new Map());
+    setRemoteStreams(new Map());
+    
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    
+    if (selectedGroup) {
+      sendMessage(selectedGroup.id, `${userName} left the call`);
+    }
+    
     setIsInCall(false);
     setIsMuted(false);
     setIsVideoOff(false);
+    
+    if (messagePollingRef.current) {
+      clearInterval(messagePollingRef.current);
+    }
   };
 
   const toggleMute = () => {
@@ -219,6 +291,155 @@ export default function StudyGroups() {
       }
     }
   };
+
+  const connectToSignaling = () => {
+    const ws = new WebSocket(`wss://socketsbay.com/wss/v2/1/${selectedGroup?.id}/`);
+    wsRef.current = ws;
+    
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'join-room', user: userName }));
+    };
+    
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      
+      switch (data.type) {
+        case 'user-joined':
+          if (data.user !== userName) {
+            await createPeerConnection(data.user);
+          }
+          break;
+        case 'offer':
+          await handleOffer(data.offer, data.from);
+          break;
+        case 'answer':
+          await handleAnswer(data.answer, data.from);
+          break;
+        case 'ice-candidate':
+          await handleIceCandidate(data.candidate, data.from);
+          break;
+      }
+    };
+  };
+
+  const createPeerConnection = async (peerId: string) => {
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
+    
+    if (localStream) {
+      localStream.getTracks().forEach(track => {
+        pc.addTrack(track, localStream);
+      });
+    }
+    
+    pc.ontrack = (event) => {
+      const [remoteStream] = event.streams;
+      setRemoteStreams(prev => new Map(prev.set(peerId, remoteStream)));
+    };
+    
+    pc.onicecandidate = (event) => {
+      if (event.candidate && wsRef.current) {
+        wsRef.current.send(JSON.stringify({
+          type: 'ice-candidate',
+          candidate: event.candidate,
+          to: peerId
+        }));
+      }
+    };
+    
+    setPeers(prev => new Map(prev.set(peerId, { id: peerId, connection: pc })));
+    
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    
+    if (wsRef.current) {
+      wsRef.current.send(JSON.stringify({
+        type: 'offer',
+        offer,
+        to: peerId
+      }));
+    }
+  };
+
+  const handleOffer = async (offer: RTCSessionDescriptionInit, from: string) => {
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
+    
+    if (localStream) {
+      localStream.getTracks().forEach(track => {
+        pc.addTrack(track, localStream);
+      });
+    }
+    
+    pc.ontrack = (event) => {
+      const [remoteStream] = event.streams;
+      setRemoteStreams(prev => new Map(prev.set(from, remoteStream)));
+    };
+    
+    pc.onicecandidate = (event) => {
+      if (event.candidate && wsRef.current) {
+        wsRef.current.send(JSON.stringify({
+          type: 'ice-candidate',
+          candidate: event.candidate,
+          to: from
+        }));
+      }
+    };
+    
+    setPeers(prev => new Map(prev.set(from, { id: from, connection: pc })));
+    
+    await pc.setRemoteDescription(offer);
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    
+    if (wsRef.current) {
+      wsRef.current.send(JSON.stringify({
+        type: 'answer',
+        answer,
+        to: from
+      }));
+    }
+  };
+
+  const handleAnswer = async (answer: RTCSessionDescriptionInit, from: string) => {
+    const peer = peers.get(from);
+    if (peer) {
+      await peer.connection.setRemoteDescription(answer);
+    }
+  };
+
+  const handleIceCandidate = async (candidate: RTCIceCandidateInit, from: string) => {
+    const peer = peers.get(from);
+    if (peer) {
+      await peer.connection.addIceCandidate(candidate);
+    }
+  };
+
+  // Simulate real-time message polling (replace with WebSocket in production)
+  const startMessagePolling = () => {
+    messagePollingRef.current = setInterval(() => {
+      const savedGroups = localStorage.getItem('studyGroups');
+      if (savedGroups && selectedGroup) {
+        const currentGroups = JSON.parse(savedGroups);
+        const updatedGroup = currentGroups.find((g: StudyGroup) => g.id === selectedGroup.id);
+        if (updatedGroup && updatedGroup.messages.length !== selectedGroup.messages.length) {
+          setSelectedGroup(updatedGroup);
+          setGroups(currentGroups);
+        }
+      }
+    }, 2000); // Poll every 2 seconds
+  };
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (messagePollingRef.current) {
+        clearInterval(messagePollingRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
@@ -294,6 +515,7 @@ export default function StudyGroups() {
                 userName={userName}
                 onSendMessage={sendMessage}
                 onJoinGroup={joinGroup}
+                onLeaveGroup={leaveGroup}
                 isInCall={isInCall}
                 onStartCall={startCall}
                 onEndCall={endCall}
@@ -302,7 +524,7 @@ export default function StudyGroups() {
                 isMuted={isMuted}
                 isVideoOff={isVideoOff}
                 localVideoRef={localVideoRef}
-                remoteVideoRef={remoteVideoRef}
+                remoteStreams={remoteStreams}
               />
             ) : (
               <div className="bg-white rounded-xl shadow-lg p-6 lg:p-8 text-center">
@@ -391,11 +613,12 @@ export default function StudyGroups() {
   );
 }
 
-function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onStartCall, onEndCall, onToggleMute, onToggleVideo, isMuted, isVideoOff, localVideoRef, remoteVideoRef }: {
+function GroupChat({ group, userName, onSendMessage, onJoinGroup, onLeaveGroup, isInCall, onStartCall, onEndCall, onToggleMute, onToggleVideo, isMuted, isVideoOff, localVideoRef, remoteStreams }: {
   group: StudyGroup;
   userName: string;
   onSendMessage: (groupId: string, content: string) => void;
   onJoinGroup: (groupId: string) => void;
+  onLeaveGroup: (groupId: string) => void;
   isInCall: boolean;
   onStartCall: () => void;
   onEndCall: () => void;
@@ -404,7 +627,7 @@ function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onSt
   isMuted: boolean;
   isVideoOff: boolean;
   localVideoRef: React.RefObject<HTMLVideoElement | null>;
-  remoteVideoRef: React.RefObject<HTMLVideoElement | null>;
+  remoteStreams: Map<string, MediaStream>;
 }) {
   const [message, setMessage] = useState('');
   const isMember = group.members.includes(userName);
@@ -462,6 +685,13 @@ function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onSt
                 >
                   {isInCall ? <PhoneOff className="w-3 h-3 lg:w-4 lg:h-4" /> : <Phone className="w-3 h-3 lg:w-4 lg:h-4" />}
                 </button>
+                <button
+                  onClick={() => onLeaveGroup(group.id)}
+                  className="p-2 rounded-lg text-white text-xs lg:text-sm bg-red-600 hover:bg-red-700"
+                  title="Leave Group"
+                >
+                  <LogOut className="w-3 h-3 lg:w-4 lg:h-4" />
+                </button>
               </>
             )}
             {!isMember && canJoin && (
@@ -482,7 +712,7 @@ function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onSt
       {/* Video Call Area */}
       {isInCall && (
         <div className="p-2 lg:p-4 bg-gray-100 border-b">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-4">
+          <div className="grid grid-cols-2 gap-2 lg:gap-4">
             <div className="relative">
               <video
                 ref={localVideoRef}
@@ -494,16 +724,9 @@ function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onSt
                 You {isMuted && '🔇'} {isVideoOff && '📹'}
               </span>
             </div>
-            <div className="relative">
-              <video
-                ref={remoteVideoRef}
-                autoPlay
-                className="w-full h-24 lg:h-32 bg-gray-800 rounded-lg object-cover"
-              />
-              <span className="absolute bottom-1 left-1 text-white text-xs bg-black/50 px-1 py-0.5 rounded">
-                Remote
-              </span>
-            </div>
+            {Array.from(remoteStreams.entries()).map(([peerId, stream]) => (
+              <RemoteVideo key={peerId} stream={stream} peerId={peerId} />
+            ))}
           </div>
         </div>
       )}
@@ -511,13 +734,23 @@ function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onSt
       <div className="flex-1 p-3 lg:p-4 overflow-y-auto min-h-0">
         {group.messages.map(msg => (
           <div key={msg.id} className="mb-2 lg:mb-3">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-xs lg:text-sm">{msg.author}</span>
-              <span className="text-xs text-gray-500">
-                {new Date(msg.timestamp).toLocaleTimeString()}
-              </span>
-            </div>
-            <p className="text-xs lg:text-sm bg-gray-100 p-2 rounded break-words">{msg.content}</p>
+            {msg.author === 'System' ? (
+              <div className="text-center">
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  {msg.content}
+                </span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium text-xs lg:text-sm">{msg.author}</span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
+                <p className="text-xs lg:text-sm bg-gray-100 p-2 rounded break-words">{msg.content}</p>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -538,6 +771,29 @@ function GroupChat({ group, userName, onSendMessage, onJoinGroup, isInCall, onSt
           </button>
         </form>
       )}
+    </div>
+  );
+}
+
+function RemoteVideo({ stream, peerId }: { stream: MediaStream; peerId: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+  
+  return (
+    <div className="relative">
+      <video
+        ref={videoRef}
+        autoPlay
+        className="w-full h-24 lg:h-32 bg-gray-800 rounded-lg object-cover"
+      />
+      <span className="absolute bottom-1 left-1 text-white text-xs bg-black/50 px-1 py-0.5 rounded">
+        {peerId}
+      </span>
     </div>
   );
 }
