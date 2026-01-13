@@ -1,6 +1,8 @@
-/* Blog Post Layout Styles */
+/* Blog Post Layout Styles - Mobile Optimized */
 .blog-post-layout {
-  /* Custom scrollbar for TOC */
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
+  will-change: auto;
 }
 
 .toc-container {
@@ -8,6 +10,9 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+  /* Optimize scrolling performance */
+  -webkit-overflow-scrolling: touch;
+  contain: layout style;
 }
 
 .toc-container::-webkit-scrollbar {
@@ -27,9 +32,17 @@
   background: rgba(139, 92, 246, 0.5);
 }
 
-/* Enhanced prose styles for content */
+/* Enhanced prose styles for content - Mobile Optimized */
+.prose {
+  /* Optimize text rendering */
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  contain: layout style;
+}
+
 .prose h1 {
-  font-size: 2rem !important;
+  font-size: clamp(1.5rem, 4vw, 2rem) !important;
   font-weight: bold !important;
   color: #111827 !important;
   margin-bottom: 1.5rem;
@@ -38,10 +51,11 @@
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
+  will-change: auto;
 }
 
 .prose h2 {
-  font-size: 1.5rem !important;
+  font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
   font-weight: bold !important;
   color: #1f2937 !important;
   margin-bottom: 1rem;
@@ -51,7 +65,7 @@
 }
 
 .prose h3 {
-  font-size: 1.25rem !important;
+  font-size: clamp(1.125rem, 2.5vw, 1.25rem) !important;
   font-weight: 600 !important;
   color: #1f2937 !important;
   margin-bottom: 0.75rem;
@@ -59,7 +73,7 @@
 }
 
 .prose h4 {
-  font-size: 1.125rem !important;
+  font-size: clamp(1rem, 2vw, 1.125rem) !important;
   font-weight: 600 !important;
   color: #374151 !important;
   margin-bottom: 0.75rem;
@@ -68,7 +82,7 @@
 
 .prose p {
   margin-bottom: 1rem;
-  font-size: 1rem !important;
+  font-size: clamp(0.9rem, 2vw, 1rem) !important;
   line-height: 1.75;
   color: #111827 !important;
 }
@@ -80,7 +94,7 @@
 
 .prose li {
   margin-bottom: 0.5rem;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1rem);
   line-height: 1.75;
 }
 
@@ -94,6 +108,7 @@
   border-radius: 0 0.5rem 0.5rem 0;
   font-style: italic;
   color: #374151;
+  contain: layout style;
 }
 
 .prose code {
@@ -103,6 +118,7 @@
   font-size: 0.875rem;
   font-family: ui-monospace, SFMono-Regular, monospace;
   color: #7c3aed;
+  word-break: break-word;
 }
 
 .prose pre {
@@ -112,44 +128,135 @@
   border-radius: 0.5rem;
   overflow-x: auto;
   margin: 1rem 0;
+  contain: layout style;
+  -webkit-overflow-scrolling: touch;
 }
 
 .prose pre code {
   background-color: transparent;
   padding: 0;
   color: #f9fafb;
+  word-break: normal;
 }
 
-/* Smooth scroll behavior */
+/* Smooth scroll behavior with reduced motion support */
 html {
   scroll-behavior: smooth;
 }
 
-/* Animation for related content hover */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  .related-item {
+    transition: none;
+  }
+}
+
+/* Animation for related content hover - Optimized */
 .related-item {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .related-item:hover {
   transform: translateY(-2px);
 }
 
-/* Responsive text sizing */
+/* Mobile-first responsive design */
 @media (max-width: 640px) {
+  .blog-post-layout {
+    /* Reduce backdrop blur on mobile for better performance */
+    backdrop-filter: none;
+  }
+  
+  .prose {
+    /* Optimize for mobile reading */
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
   .prose h1 {
-    font-size: 1.5rem;
+    font-size: 1.5rem !important;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
   
   .prose h2 {
-    font-size: 1.25rem;
+    font-size: 1.25rem !important;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
   }
   
   .prose h3 {
-    font-size: 1.125rem;
+    font-size: 1.125rem !important;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
   }
   
   .prose p,
   .prose li {
-    font-size: 1rem;
+    font-size: 0.9rem !important;
+    line-height: 1.6;
+  }
+  
+  .prose pre {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .prose code {
+    font-size: 0.8rem;
+  }
+  
+  /* Reduce margins on mobile */
+  .prose blockquote {
+    margin: 0.75rem 0;
+    padding-left: 0.75rem;
+  }
+}
+
+/* Performance optimizations for very small screens */
+@media (max-width: 480px) {
+  .prose {
+    font-size: 0.85rem;
+  }
+  
+  .prose h1 {
+    font-size: 1.25rem !important;
+  }
+  
+  .prose h2 {
+    font-size: 1.125rem !important;
+  }
+  
+  .prose h3 {
+    font-size: 1rem !important;
+  }
+  
+  .prose p,
+  .prose li {
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Optimize images for mobile */
+@media (max-width: 768px) {
+  .prose img {
+    /* Lazy loading hint */
+    content-visibility: auto;
+    contain-intrinsic-size: 300px;
+  }
+}
+
+/* Reduce animations on low-end devices */
+@media (max-width: 640px) and (max-height: 800px) {
+  .related-item {
+    transition: none;
+  }
+  
+  .related-item:hover {
+    transform: none;
   }
 }

@@ -9,6 +9,7 @@ import { getRelatedContent, addIdsToContent } from '@/lib/post-utils';
 import { Calendar, Eye, Tag, FileDown, Video, FileText } from 'lucide-react';
 import MathRenderer from '@/components/MathRenderer';
 import BlogPostLayout from '@/components/BlogPostLayout';
+import PerformanceMonitor from '@/components/PerformanceMonitor';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -65,7 +66,9 @@ export default async function BlogDetailPage({ params }: Props) {
   const { relatedPosts, relatedChapters, relatedTopics, relatedConcepts } = getRelatedContent(post, allPosts);
 
   return (
-    <BlogPostLayout
+    <>
+      <PerformanceMonitor pageName={`blog-${post.slug}`} />
+      <BlogPostLayout
       post={{
         id: post.id,
         title: post.title,
@@ -228,10 +231,17 @@ export default async function BlogDetailPage({ params }: Props) {
               </div>
             )}
 
-            {/* Content */}
+            {/* Content - Mobile Optimized */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-lg border border-white/20 mb-6 sm:mb-8">
               <div className="p-4 sm:p-8 prose prose-sm sm:prose-base lg:prose-lg max-w-none text-gray-900">
-                <div dangerouslySetInnerHTML={{ __html: contentWithIds }} />
+                <div 
+                  dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                  style={{
+                    contain: 'layout style',
+                    contentVisibility: 'auto',
+                    containIntrinsicSize: '0 1000px'
+                  }}
+                />
               </div>
             </div>
 
@@ -277,6 +287,7 @@ export default async function BlogDetailPage({ params }: Props) {
         </div>
       </article>
     </BlogPostLayout>
+    </>
   );
 }
 

@@ -7,7 +7,6 @@ import Footer from '@/components/Footer';
 import FloatingStudyTools from '@/components/FloatingStudyTools';
 import QuizPopup from '@/components/QuizPopup';
 import "katex/dist/katex.min.css";
-import './globals.css';
 
 
 const inter = Inter({ subsets: ['latin'] });

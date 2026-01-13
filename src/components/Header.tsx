@@ -18,6 +18,8 @@ export default function Header() {
     { label: 'Topic Wise', href: '/topic-wise' },
     { label: 'Concept Wise', href: '/concept-wise' },
     { label: 'Blog', href: '/blog' },
+    { label: 'Study Groups', href: '/study-groups' },
+    { label: 'Mind Maps', href: '/mind-maps' },
     { label: 'Syllabus', href: '/syllabus' },
     { label: 'Analytics', href: '/analytics' }
   ];

@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/ContentRenderer.tsx
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import mermaid from 'mermaid';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -13,79 +13,129 @@ interface ContentRendererProps {
 
 export default function ContentRenderer({ content, className = '' }: ContentRendererProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const processedRef = useRef<boolean>(false);
 
-  useEffect(() => {
+  const processMermaid = useCallback(async () => {
     if (!contentRef.current) return;
 
-    // Initialize mermaid
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      securityLevel: 'loose',
-    });
-
-    // Render Mermaid diagrams
     const mermaidBlocks = contentRef.current.querySelectorAll('code.language-mermaid');
-    mermaidBlocks.forEach((block, index) => {
-      const code = block.textContent || '';
-      const id = `mermaid-${index}-${Date.now()}`;
-      
-      // Create a container for the diagram
-      const container = document.createElement('div');
-      container.id = id;
-      container.className = 'mermaid-diagram';
-      
-      // Replace the code block with the container
-      if (block.parentElement) {
-        block.parentElement.replaceWith(container);
-      }
-      
-      // Render the diagram
-      mermaid.render(id, code).then(({ svg }) => {
-        container.innerHTML = svg;
-      }).catch((error) => {
-        console.error('Mermaid rendering error:', error);
-        container.innerHTML = `<div class="text-red-600 p-4 bg-red-50 rounded">Error rendering diagram: ${error.message}</div>`;
+    if (mermaidBlocks.length === 0) return;
+
+    // Initialize mermaid only once
+    if (!mermaid.mermaidAPI) {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
       });
+    }
+
+    // Process mermaid blocks with error handling
+    const promises = Array.from(mermaidBlocks).map(async (block, index) => {
+      try {
+        const code = block.textContent || '';
+        const id = `mermaid-${index}-${Date.now()}`;
+        
+        const container = document.createElement('div');
+        container.id = id;
+        container.className = 'mermaid-diagram';
+        
+        if (block.parentElement) {
+          block.parentElement.replaceWith(container);
+        }
+        
+        const { svg } = await mermaid.render(id, code);
+        container.innerHTML = svg;
+      } catch (error) {
+        console.error('Mermaid rendering error:', error);
+        const container = document.createElement('div');
+        container.className = 'text-red-600 p-4 bg-red-50 rounded';
+        container.textContent = `Error rendering diagram: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        if (block.parentElement) {
+          block.parentElement.replaceWith(container);
+        }
+      }
     });
 
-    // Process math after a short delay to ensure DOM is ready
-    setTimeout(() => {
-      if (!contentRef.current) return;
+    await Promise.allSettled(promises);
+  }, []);
 
-      // Render block math first (e.g., $$...$$)
-      let html = contentRef.current.innerHTML;
-      html = html.replace(/\$\$([\s\S]*?)\$\$/g, (match, latex) => {
-        try {
-          const rendered = katex.renderToString(latex.trim(), {
-            displayMode: true,
-            throwOnError: false,
-          });
-          return `<div class="math-block math-rendered">${rendered}</div>`;
-        } catch (error) {
-          console.error('KaTeX block error:', error);
-          return match;
-        }
-      });
+  const processMath = useCallback(() => {
+    if (!contentRef.current) return;
 
-      // Render inline math (e.g., $x^2$)
-      html = html.replace(/\$([^\$\n]+)\$/g, (match, latex) => {
-        try {
-          const rendered = katex.renderToString(latex.trim(), {
-            displayMode: false,
-            throwOnError: false,
-          });
-          return `<span class="math-inline math-rendered">${rendered}</span>`;
-        } catch (error) {
-          console.error('KaTeX inline error:', error);
-          return match;
-        }
-      });
+    let html = contentRef.current.innerHTML;
+    
+    // Process block math first ($$...$$) with better regex
+    html = html.replace(/\$\$([\s\S]*?)\$\$/g, (match, latex) => {
+      try {
+        const cleanLatex = latex.trim();
+        if (!cleanLatex) return match;
+        
+        const rendered = katex.renderToString(cleanLatex, {
+          displayMode: true,
+          throwOnError: false,
+          strict: false,
+        });
+        return `<div class="math-block math-rendered">${rendered}</div>`;
+      } catch (error) {
+        console.error('KaTeX block error:', error);
+        return `<div class="math-error">Math Error: ${latex}</div>`;
+      }
+    });
 
-      contentRef.current.innerHTML = html;
-    }, 100);
+    // Process inline math ($x^2$) with improved regex
+    html = html.replace(/\$([^\$\n\r]{1,100})\$/g, (match, latex) => {
+      try {
+        const cleanLatex = latex.trim();
+        if (!cleanLatex) return match;
+        
+        const rendered = katex.renderToString(cleanLatex, {
+          displayMode: false,
+          throwOnError: false,
+          strict: false,
+        });
+        return `<span class="math-inline math-rendered">${rendered}</span>`;
+      } catch (error) {
+        console.error('KaTeX inline error:', error);
+        return `<span class="math-error">Math Error: ${latex}</span>`;
+      }
+    });
 
-  }, [content]);
+    contentRef.current.innerHTML = html;
+  }, []);
+
+  useEffect(() => {
+    if (!contentRef.current || processedRef.current) return;
+    
+    // Mark as processed to prevent re-processing
+    processedRef.current = true;
+
+    // Use requestIdleCallback for better performance on mobile
+    const processContent = async () => {
+      try {
+        // Process mermaid first
+        await processMermaid();
+        
+        // Then process math with a small delay
+        setTimeout(() => {
+          processMath();
+        }, 50);
+      } catch (error) {
+        console.error('Content processing error:', error);
+      }
+    };
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => processContent(), { timeout: 1000 });
+    } else {
+      setTimeout(processContent, 100);
+    }
+
+    // Cleanup function
+    return () => {
+      processedRef.current = false;
+    };
+  }, [content, processMermaid, processMath]);
 
   return (
     <>
@@ -100,7 +150,12 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
         } as React.CSSProperties}
       />
       <style jsx global>{`
-        /* Force colors ONLY for post content within ContentRenderer */
+        /* Optimized styles for mobile performance */
+        .prose[data-content-renderer] {
+          will-change: auto;
+          contain: layout style;
+        }
+        
         .prose[data-content-renderer] h1, .prose[data-content-renderer] h1 * {
           color: #111827 !important;
           background: linear-gradient(135deg, #1f2937 0%, #7c3aed 50%, #ec4899 100%) !important;
@@ -131,26 +186,29 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
           color: #111827 !important;
         }
 
-        /* Mermaid diagrams */
+        /* Optimized Mermaid diagrams */
         .mermaid-diagram {
           margin: 2em 0;
           display: flex;
           justify-content: center;
           background: #f9fafb;
-          padding: 2em;
+          padding: 1em;
           border-radius: 0.5em;
           border: 1px solid #e5e7eb;
+          contain: layout style;
         }
 
         .mermaid-diagram svg {
           max-width: 100%;
           height: auto;
+          will-change: auto;
         }
 
-        /* Math styling */
+        /* Optimized Math styling */
         .math-inline {
           display: inline-block;
-          margin: 0 0.2em;
+          margin: 0 0.1em;
+          contain: layout style;
         }
 
         .math-block {
@@ -158,10 +216,35 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
           overflow-x: auto;
           overflow-y: hidden;
           text-align: center;
+          contain: layout style;
         }
 
         .math-block .katex-display {
           margin: 0;
+        }
+
+        .math-error {
+          color: #dc2626;
+          background: #fef2f2;
+          padding: 0.5em;
+          border-radius: 0.25em;
+          font-size: 0.875em;
+        }
+
+        /* Mobile-optimized code blocks */
+        @media (max-width: 768px) {
+          .prose[data-content-renderer] {
+            font-size: 0.9rem;
+          }
+          
+          .mermaid-diagram {
+            padding: 0.5em;
+            margin: 1em 0;
+          }
+          
+          .math-block {
+            font-size: 0.9em;
+          }
         }
 
         /* Code blocks */
@@ -172,6 +255,7 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
           border-radius: 0.5em;
           overflow-x: auto;
           margin: 1.5em 0;
+          contain: layout style;
         }
 
         pre code {
@@ -196,6 +280,7 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
           border-collapse: collapse;
           width: 100%;
           margin: 1.5em 0;
+          contain: layout style;
         }
 
         table th,
@@ -216,6 +301,7 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
           height: auto;
           border-radius: 0.5em;
           margin: 1.5em 0;
+          will-change: auto;
         }
       `}</style>
     </>
