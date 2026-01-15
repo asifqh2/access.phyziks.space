@@ -51,9 +51,9 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen bg-transparent">
           <Header />
-          <main className="flex-grow">
+          <main className="flex-grow bg-transparent">
             {children}
           </main>
           <Footer />

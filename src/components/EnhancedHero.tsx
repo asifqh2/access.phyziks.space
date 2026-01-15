@@ -20,7 +20,7 @@ export default function EnhancedHero() {
         {/* Left: Text Content */}
         <div className="max-w-5xl">
           <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold leading-[0.95] tracking-tight text-balance mb-8">
-            Born Last Bencher. <br/>Becoming Future Topper.
+            For Last Benchers, <br/>Future Toppers.
           </h1>
           <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-2xl leading-relaxed mb-8">
             Master physics concepts with solved numericals, 

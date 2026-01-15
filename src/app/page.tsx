@@ -10,10 +10,14 @@ import { Trophy } from 'lucide-react';
 import TypingEffect from '@/components/TypingEffect';
 import StudyTimer from '@/components/StudyTimer';
 import QuickNotes from '@/components/QuickNotes';
+import StudyGroup from '@/components/StudyGroup';
+import MindMapCard from '@/components/MindMapCard';
+import StudyGroupCard from '@/components/StudyGroupCard';
 import FavoritesGuide from '@/components/FavoritesGuide';
 import Animations from '@/components/Animations';
 import EnhancedHero from '@/components/EnhancedHero';
 import { EnhancedPostCard } from '@/components/EnhancedPostCard';
+import MindMapDemo from '@/components/MindMapDemo';
 
 import GitHubComments from '@/components/GitHubComments';
 
@@ -153,7 +157,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      
+
       {/* Enhanced Hero Section */}
       <EnhancedHero />
 
@@ -171,6 +175,13 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Mind Map Demo */}
+      <section className="py-12 sm:py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <MindMapDemo />
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section className="py-12 sm:py-16 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -178,7 +189,7 @@ export default async function HomePage() {
             Explore Our Educational Resources
           </h2>
           <p className="text-center text-gray-600 mb-8 sm:mb-12 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            Access comprehensive study materials organized by different learning approaches. 
+            Access comprehensive study materials organized by different learning approaches.
             Choose the method that works best for your learning style.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -224,7 +235,7 @@ export default async function HomePage() {
             Latest Study Materials & Updates
           </h2>
           <p className="text-center text-blue-200 mb-8  sm:mb-12 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            Stay updated with our newest study materials, solved papers, and educational content. 
+            Stay updated with our newest study materials, solved papers, and educational content.
             Fresh content added regularly to help you excel in your studies.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -232,7 +243,7 @@ export default async function HomePage() {
               <EnhancedPostCard key={post.id} post={post} />
             ))}
           </div>
-          
+
           <div className="text-center mt-8 sm:mt-12">
             <Link
               href="/blog"
@@ -265,13 +276,11 @@ export default async function HomePage() {
           <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
             Interactive Study Tools
           </h2>
-          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6">
-            <div className="w-full sm:w-auto">
-              <StudyTimer />
-            </div>
-            <div className="w-full sm:w-auto">
-              <QuickNotes />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+            <StudyTimer />
+            <QuickNotes />
+            <MindMapCard />
+            <StudyGroupCard />
           </div>
         </div>
       </section>
@@ -288,26 +297,26 @@ export default async function HomePage() {
               <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">Previous Papers</h3>
               <p className="text-xs sm:text-sm text-purple-100 leading-tight">Solved question papers from past years</p>
             </Link>
-            
+
             <Link href="/chapter-wise" className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl text-center hover:shadow-lg transition-shadow group touch-manipulation">
               <div className="text-2xl sm:text-3xl mb-2 sm:mb-3 group-hover:scale-110 transition-transform">📖</div>
               <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">Chapter Notes</h3>
               <p className="text-xs sm:text-sm text-green-100 leading-tight">Organized study materials by chapters</p>
             </Link>
-            
+
             <Link href="/topic-wise" className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl text-center hover:shadow-lg transition-shadow group touch-manipulation">
               <div className="text-2xl sm:text-3xl mb-2 sm:mb-3 group-hover:scale-110 transition-transform">📝</div>
               <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">Topic Guides</h3>
               <p className="text-xs sm:text-sm text-blue-100 leading-tight">In-depth topic explanations</p>
             </Link>
-            
+
             <Link href="/concept-wise" className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 sm:p-6 rounded-xl text-center hover:shadow-lg transition-shadow group touch-manipulation">
               <div className="text-2xl sm:text-3xl mb-2 sm:mb-3 group-hover:scale-110 transition-transform">💡</div>
               <h3 className="font-bold text-sm sm:text-lg mb-1 sm:mb-2">Concepts</h3>
               <p className="text-xs sm:text-sm text-orange-100 leading-tight">Master fundamental concepts</p>
             </Link>
           </div>
-          
+
           <div className="mt-8 sm:mt-12 text-center">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">More Resources</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
@@ -325,12 +334,23 @@ export default async function HomePage() {
       {/* Comments Section */}
       <section className="py-8 sm:py-12 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <GitHubComments 
+          <GitHubComments
             postId="homepage"
             postTitle="Phyziks.space - Educational Platform Discussion"
           />
         </div>
       </section>
+      {/* Study Group Section */}
+      <div id="study-group" className="mt-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Virtual Study Group</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Join a private, temporary room with up to 5 classmates. Chat, collaborate, and study together.
+            Everything disappears when you leave.
+          </p>
+        </div>
+        <StudyGroup />
+      </div>
     </div>
   );
 }
