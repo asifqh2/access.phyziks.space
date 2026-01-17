@@ -21,16 +21,16 @@ export default function TypingEffect({ text, speed = 100, className = '' }: Typi
         setCurrentIndex(prev => prev + 1);
       } else if (!isDeleting && currentIndex === text.length) {
         setTimeout(() => setIsDeleting(true), 2000);
-      } else if (isDeleting && displayText.length > 0) {
+      } else if (isDeleting && currentIndex > 0) {
         setDisplayText(prev => prev.slice(0, -1));
-      } else if (isDeleting && displayText.length === 0) {
+        setCurrentIndex(prev => prev - 1);
+      } else if (isDeleting && currentIndex === 0) {
         setIsDeleting(false);
-        setCurrentIndex(0);
       }
     }, isDeleting ? speed / 2 : speed);
     
     return () => clearTimeout(timeout);
-  }, [currentIndex, text, speed, isDeleting, displayText]);
+  }, [currentIndex, text, speed, isDeleting]);
 
   useEffect(() => {
     const cursorInterval = setInterval(() => {

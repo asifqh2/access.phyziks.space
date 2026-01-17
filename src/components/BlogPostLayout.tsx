@@ -91,40 +91,30 @@ export default function BlogPostLayout({
     generateToc();
   }, [post.content]);
 
-  // Handle scroll to update active section and sticky progress with debouncing
+  // Handle scroll to update active section and sticky progress with throttling
   useEffect(() => {
-    let ticking = false;
     let timeoutId: NodeJS.Timeout;
     
     const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const headings = tocItems.map(item => document.getElementById(item.id)).filter(Boolean);
-          
-          for (let i = headings.length - 1; i >= 0; i--) {
-            const heading = headings[i];
-            if (heading && heading.getBoundingClientRect().top <= 100) {
-              setActiveSection(heading.id);
-              break;
-            }
-          }
-
-          // Show sticky progress after scrolling 200px
-          setShowStickyProgress(window.scrollY > 200);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    const debouncedScroll = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(handleScroll, 16); // ~60fps
+      timeoutId = setTimeout(() => {
+        const headings = tocItems.map(item => document.getElementById(item.id)).filter(Boolean);
+        
+        for (let i = headings.length - 1; i >= 0; i--) {
+          const heading = headings[i];
+          if (heading && heading.getBoundingClientRect().top <= 100) {
+            setActiveSection(heading.id);
+            break;
+          }
+        }
+
+        setShowStickyProgress(window.scrollY > 200);
+      }, 100);
     };
 
-    window.addEventListener('scroll', debouncedScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', debouncedScroll);
+      window.removeEventListener('scroll', handleScroll);
       clearTimeout(timeoutId);
     };
   }, [tocItems]);
@@ -480,32 +470,23 @@ function StickyProgressBar() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    let ticking = false;
     let timeoutId: NodeJS.Timeout;
     
     const updateProgress = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const scrollTop = window.scrollY;
-          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-          const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-          setProgress(Math.min(100, Math.max(0, scrollPercent)));
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    const debouncedUpdate = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(updateProgress, 16);
+      timeoutId = setTimeout(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        setProgress(Math.min(100, Math.max(0, scrollPercent)));
+      }, 100);
     };
 
     updateProgress();
-    window.addEventListener('scroll', debouncedUpdate, { passive: true });
+    window.addEventListener('scroll', updateProgress, { passive: true });
     
     return () => {
-      window.removeEventListener('scroll', debouncedUpdate);
+      window.removeEventListener('scroll', updateProgress);
       clearTimeout(timeoutId);
     };
   }, []);
@@ -526,7 +507,6 @@ function ReadingProgress() {
   const [readingTime, setReadingTime] = useState(0);
 
   useEffect(() => {
-    let ticking = false;
     let timeoutId: NodeJS.Timeout;
     
     const calculateReadingTime = () => {
@@ -537,29 +517,21 @@ function ReadingProgress() {
     };
 
     const updateProgress = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const scrollTop = window.scrollY;
-          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-          const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-          setProgress(Math.min(100, Math.max(0, scrollPercent)));
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    const debouncedUpdate = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(updateProgress, 16);
+      timeoutId = setTimeout(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        setProgress(Math.min(100, Math.max(0, scrollPercent)));
+      }, 100);
     };
 
     calculateReadingTime();
     updateProgress();
-    window.addEventListener('scroll', debouncedUpdate, { passive: true });
+    window.addEventListener('scroll', updateProgress, { passive: true });
     
     return () => {
-      window.removeEventListener('scroll', debouncedUpdate);
+      window.removeEventListener('scroll', updateProgress);
       clearTimeout(timeoutId);
     };
   }, []);

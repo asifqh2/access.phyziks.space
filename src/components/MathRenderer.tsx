@@ -183,7 +183,6 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
         ref={containerRef}
         data-math-rendered
         className={`prose prose-lg max-w-none text-gray-900 overflow-x-auto ${className}`}
-        style={{ contain: 'layout style' }}
       />
       <style jsx global>{`
         /* Optimized math rendering styles */
@@ -192,13 +191,11 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
           overflow-x: auto;
           overflow-y: hidden;
           text-align: center;
-          contain: layout style;
         }
         
         .katex-inline {
           display: inline-block;
           margin: 0 0.1em;
-          contain: layout style;
         }
         
         .math-error {

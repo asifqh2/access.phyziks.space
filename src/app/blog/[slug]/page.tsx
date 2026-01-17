@@ -234,14 +234,7 @@ export default async function BlogDetailPage({ params }: Props) {
             {/* Content - Mobile Optimized */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-lg border border-white/20 mb-6 sm:mb-8">
               <div className="p-4 sm:p-8 prose prose-sm sm:prose-base lg:prose-lg max-w-none text-gray-900">
-                <div 
-                  dangerouslySetInnerHTML={{ __html: contentWithIds }}
-                  style={{
-                    contain: 'layout style',
-                    contentVisibility: 'auto',
-                    containIntrinsicSize: '0 1000px'
-                  }}
-                />
+                <div dangerouslySetInnerHTML={{ __html: contentWithIds }} />
               </div>
             </div>
 
