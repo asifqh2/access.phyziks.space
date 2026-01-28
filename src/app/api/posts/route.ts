@@ -9,8 +9,9 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const subject = searchParams.get('subject');
     const year = searchParams.get('year');
+    const includeHidden = searchParams.get('includeHidden');
     
-    let posts = await getPublicPosts();
+    let posts = includeHidden === 'true' ? await getAllPosts() : await getPublicPosts();
     
     // Filter by syllabus
     if (isSyllabus === 'true') {

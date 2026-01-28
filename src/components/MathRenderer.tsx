@@ -12,7 +12,12 @@ interface MathRendererProps {
 function decodeHtmlEntities(text: string): string {
   const textarea = document.createElement('textarea');
   textarea.innerHTML = text;
-  return textarea.value;
+  let decoded = textarea.value;
+  
+  // Handle double-escaped backslashes from JSON
+  decoded = decoded.replace(/\\\\/g, '\\');
+  
+  return decoded;
 }
 
 export default function MathRenderer({ content, className = '' }: MathRendererProps) {
@@ -187,7 +192,7 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
       <style jsx global>{`
         /* Optimized math rendering styles */
         .katex-display-block {
-          margin: 1.5em 0;
+          margin: 0.1em 0;
           overflow-x: auto;
           overflow-y: hidden;
           text-align: center;
@@ -195,7 +200,15 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
         
         .katex-inline {
           display: inline-block;
-          margin: 0 0.1em;
+          margin: 0;
+        }
+        
+        .katex {
+          color: #111827 !important;
+        }
+        
+        .katex .mord, .katex .mop, .katex .mrel, .katex .mbin, .katex .mpunct {
+          color: #111827 !important;
         }
         
         .math-error {
@@ -211,7 +224,7 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
         @media (max-width: 768px) {
           .katex-display-block {
             font-size: 0.9em;
-            margin: 1em 0;
+            margin: 0.6em 0;
           }
           
           .katex-inline {

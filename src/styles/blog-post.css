@@ -54,6 +54,20 @@
   will-change: auto;
 }
 
+/* Fix KaTeX math visibility in headings */
+.prose h1 .katex,
+.prose h1 .katex *,
+.prose h2 .katex,
+.prose h2 .katex *,
+.prose h3 .katex,
+.prose h3 .katex *,
+.prose h4 .katex,
+.prose h4 .katex * {
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
+  background: none !important;
+}
+
 .prose h2 {
   font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
   font-weight: bold !important;

@@ -113,12 +113,16 @@ export default function PostCard({ post }: PostCardProps) {
             href={`/${post.category}/${post.slug}`} 
             className="hover:text-blue-600 transition-colors"
           >
-            {post.title}
+            {post.title && post.title.length > 200 
+              ? post.title.substring(0, 200) + '...' 
+              : post.title}
           </Link>
         </h3>
 
         <p className="text-gray-600 mb-4 line-clamp-2">
-          {post.description}
+          {post.description && post.description.length > 30 
+            ? post.description.substring(0, 30) + '...' 
+            : post.description}
         </p>
 
         {/* Reading Time & Stats */}

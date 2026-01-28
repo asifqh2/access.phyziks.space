@@ -38,14 +38,18 @@ export function EnhancedPostCard({ post, priority = false }: EnhancedPostCardPro
         {/* Title */}
         <Link href={`/${post.category}/${post.slug}`}>
           <h3 className="text-xl font-bold tracking-tight mb-3 leading-tight group-hover:text-blue-600 transition-colors text-balance">
-            {post.title}
+            {post.title && post.title.length > 200 
+              ? post.title.substring(0, 200) + '...' 
+              : post.title}
           </h3>
         </Link>
 
         {/* Description */}
         <Link href={`/${post.category}/${post.slug}`}>
           <p className="text-base text-gray-600 leading-relaxed text-pretty line-clamp-2 mb-4">
-            {post.description}
+            {post.description && post.description.length > 30 
+              ? post.description.substring(0, 30) + '...' 
+              : post.description}
           </p>
         </Link>
 

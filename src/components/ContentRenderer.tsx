@@ -65,6 +65,9 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
 
     let html = contentRef.current.innerHTML;
     
+    // Handle double-escaped backslashes from JSON
+    html = html.replace(/\\\\/g, '\\');
+    
     // Process block math first ($$...$$) with better regex
     html = html.replace(/\$\$([\s\S]*?)\$\$/g, (match, latex) => {
       try {
@@ -207,12 +210,12 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
         /* Optimized Math styling */
         .math-inline {
           display: inline-block;
-          margin: 0 0.1em;
+          margin: 0;
           contain: layout style;
         }
 
         .math-block {
-          margin: 1.5em 0;
+          margin: 0.1em 0;
           overflow-x: auto;
           overflow-y: hidden;
           text-align: center;
@@ -221,6 +224,14 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
 
         .math-block .katex-display {
           margin: 0;
+        }
+        
+        .katex {
+          color: #111827 !important;
+        }
+        
+        .katex .mord, .katex .mop, .katex .mrel, .katex .mbin, .katex .mpunct {
+          color: #111827 !important;
         }
 
         .math-error {
