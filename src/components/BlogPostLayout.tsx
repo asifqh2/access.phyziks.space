@@ -7,7 +7,7 @@ import '../styles/blog-post.css';
 
 interface TocItem {
   id: string;
-  text: string;
+  title: string;
   level: number;
   excerpt?: string;
   children?: TocItem[];
@@ -327,7 +327,7 @@ function TableOfContentsContent({
   expandedTopic, 
   setExpandedTopic 
 }: { 
-  tocItems: any[], 
+  tocItems: TocItem[], 
   activeSection: string,
   expandedTopic: string | null,
   setExpandedTopic: (id: string | null) => void
@@ -346,60 +346,60 @@ function TableOfContentsContent({
     <ul className="space-y-2">
       {tocItems.map((item) => (
         <li key={item.id}>
-          <div 
-            className={`flex items-center justify-between cursor-pointer text-sm transition-all duration-200 hover:text-purple-600 py-1 font-semibold text-gray-900 border-l-3 border-purple-500 pl-3 bg-purple-50/50 rounded-r-lg ${
-              activeSection === item.id ? 'text-purple-600 bg-purple-100/50' : ''
-            }`}
-            onClick={() => item.children && item.children.length > 0 ? toggleTopic(item.id) : null}
-          >
-            <a href={`#${item.id}`} className="flex items-center gap-2 flex-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-              <div>
-                <div>{item.title}</div>
-                {item.excerpt && (
-                  <div className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    {item.excerpt}
-                  </div>
-                )}
-              </div>
-            </a>
-            {item.children && item.children.length > 0 && (
-              <span className="ml-2">
-                {expandedTopic === item.id ? (
-                  <ChevronDown className="w-3 h-3 text-gray-600" />
-                ) : (
-                  <ChevronRight className="w-3 h-3 text-gray-600" />
-                )}
-              </span>
-            )}
-          </div>
+            <div 
+              className={`flex items-center justify-between cursor-pointer text-sm transition-all duration-200 hover:text-purple-600 py-1 font-semibold text-gray-900 border-l-3 border-purple-500 pl-3 bg-purple-50/50 rounded-r-lg ${
+                activeSection === item.id ? 'text-purple-600 bg-purple-100/50' : ''
+              }`}
+              onClick={() => item.children && item.children.length > 0 ? toggleTopic(item.id) : null}
+            >
+              <a href={`#${item.id}`} className="flex items-center gap-2 flex-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                <div>
+                  <div>{item.title}</div>
+                  {item.excerpt && (
+                    <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+                      {item.excerpt}
+                    </div>
+                  )}
+                </div>
+              </a>
+              {item.children && item.children.length > 0 && (
+                <span className="ml-2">
+                  {expandedTopic === item.id ? (
+                    <ChevronDown className="w-3 h-3 text-gray-600" />
+                  ) : (
+                    <ChevronRight className="w-3 h-3 text-gray-600" />
+                  )}
+                </span>
+              )}
+            </div>
           
-          {item.children && item.children.length > 0 && expandedTopic === item.id && (
-            <ul className="ml-4 mt-1 space-y-1">
-              {item.children.map((child) => (
-                <li key={child.id}>
-                  <a
-                    href={`#${child.id}`}
-                    className={`block text-sm transition-all duration-200 hover:text-purple-600 py-1 text-gray-700 border-l-2 border-blue-300 pl-3 hover:bg-blue-50/50 rounded-r-lg ${
-                      activeSection === child.id ? 'text-purple-600 bg-purple-100/50' : ''
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                      <div>
-                        <div>{child.title}</div>
-                        {child.excerpt && (
-                          <div className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            {child.excerpt}
-                          </div>
-                        )}
-                      </div>
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
+            {item.children && item.children.length > 0 && expandedTopic === item.id && (
+              <ul className="ml-4 mt-1 space-y-1">
+                {item.children.map((child) => (
+                  <li key={child.id}>
+                    <a
+                      href={`#${child.id}`}
+                      className={`block text-sm transition-all duration-200 hover:text-purple-600 py-1 text-gray-700 border-l-2 border-blue-300 pl-3 hover:bg-blue-50/50 rounded-r-lg ${
+                        activeSection === child.id ? 'text-purple-600 bg-purple-100/50' : ''
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                        <div>
+                          <div>{child.title}</div>
+                          {child.excerpt && (
+                            <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+                              {child.excerpt}
+                            </div>
+                          )}
+                        </div>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
         </li>
       ))}
     </ul>
