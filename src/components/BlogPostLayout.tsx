@@ -9,6 +9,7 @@ interface TocItem {
   id: string;
   text: string;
   level: number;
+  excerpt?: string;
   children?: TocItem[];
 }
 
@@ -39,6 +40,8 @@ interface BlogPostLayoutProps {
   children: React.ReactNode;
 }
 
+import { useTOC } from '@/hooks/useTOC'
+
 export default function BlogPostLayout({
   post,
   relatedPosts,
@@ -47,7 +50,7 @@ export default function BlogPostLayout({
   relatedConcepts,
   children
 }: BlogPostLayoutProps) {
-  const [tocItems, setTocItems] = useState<TocItem[]>([]);
+  const tocItems = useTOC(post.content)
   const [activeSection, setActiveSection] = useState<string>('');
   const [isTocCollapsed, setIsTocCollapsed] = useState(false);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
@@ -56,39 +59,7 @@ export default function BlogPostLayout({
 
   // Generate TOC from content
   useEffect(() => {
-    const generateToc = () => {
-      const headingRegex = /<h([2-4])[^>]*id="([^"]*)"[^>]*>(.*?)<\/h[2-4]>/gi;
-      const flatItems: TocItem[] = [];
-      let match;
-
-      while ((match = headingRegex.exec(post.content)) !== null) {
-        const level = parseInt(match[1]);
-        const id = match[2];
-        const text = match[3].replace(/<[^>]*>/g, '').trim();
-        
-        if (text && level >= 2 && level <= 4) {
-          flatItems.push({ id, text, level });
-        }
-      }
-      
-      // Build hierarchical structure
-      const hierarchicalItems: TocItem[] = [];
-      let currentH2: TocItem | null = null;
-      
-      flatItems.forEach(item => {
-        if (item.level === 2) {
-          currentH2 = { ...item, children: [] };
-          hierarchicalItems.push(currentH2);
-        } else if (item.level > 2 && currentH2) {
-          currentH2.children = currentH2.children || [];
-          currentH2.children.push(item);
-        }
-      });
-      
-      setTocItems(hierarchicalItems);
-    };
-
-    generateToc();
+    // TOC is now handled by useTOC hook
   }, [post.content]);
 
   // Handle scroll to update active section and sticky progress with throttling
@@ -356,7 +327,7 @@ function TableOfContentsContent({
   expandedTopic, 
   setExpandedTopic 
 }: { 
-  tocItems: TocItem[], 
+  tocItems: any[], 
   activeSection: string,
   expandedTopic: string | null,
   setExpandedTopic: (id: string | null) => void
@@ -383,7 +354,14 @@ function TableOfContentsContent({
           >
             <a href={`#${item.id}`} className="flex items-center gap-2 flex-1">
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-              {item.text}
+              <div>
+                <div>{item.title}</div>
+                {item.excerpt && (
+                  <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+                    {item.excerpt}
+                  </div>
+                )}
+              </div>
             </a>
             {item.children && item.children.length > 0 && (
               <span className="ml-2">
@@ -408,7 +386,14 @@ function TableOfContentsContent({
                   >
                     <span className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                      {child.text}
+                      <div>
+                        <div>{child.title}</div>
+                        {child.excerpt && (
+                          <div className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            {child.excerpt}
+                          </div>
+                        )}
+                      </div>
                     </span>
                   </a>
                 </li>

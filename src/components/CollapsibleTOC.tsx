@@ -8,6 +8,7 @@ interface TOCItem {
   id: string
   title: string
   level: number
+  excerpt?: string
   children?: TOCItem[]
 }
 
@@ -57,7 +58,14 @@ export function CollapsibleTOC({ items, className }: CollapsibleTOCProps) {
             )}
             onClick={(e) => hasChildren && e.preventDefault()}
           >
-            {item.title}
+            <div>
+              <div>{item.title}</div>
+              {item.excerpt && (
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                  {item.excerpt}
+                </div>
+              )}
+            </div>
           </a>
         </div>
         
