@@ -15,53 +15,33 @@ function ensureDataDir() {
   }
 }
 
-// Read posts from GitHub first, fallback to local file
-export function readPosts(): Post[] {
+// Read posts: always prefer GitHub when credentials are available
+export async function readPosts(): Promise<Post[]> {
+  if (process.env.GITHUB_TOKEN) {
+    const githubPosts = await readPostsFromGitHub();
+    if (githubPosts !== null) return githubPosts;
+  }
+
+  // Fallback to local file
   ensureDataDir();
-  
-  // Try to sync from GitHub first (but don't block)
-  if (process.env.GITHUB_TOKEN && !fs.existsSync(POSTS_FILE)) {
-    // Only try GitHub if local file doesn't exist
-    try {
-      readPostsFromGitHub().then(githubPosts => {
-        if (githubPosts && githubPosts.length > 0) {
-          fs.writeFileSync(POSTS_FILE, JSON.stringify(githubPosts, null, 2));
-        }
-      }).catch(error => {
-        console.warn('GitHub read failed - using local storage:', error);
-      });
-    } catch (error) {
-      console.warn('GitHub sync error - using local storage:', error);
-    }
-  }
-  
-  // Read from local file
-  if (!fs.existsSync(POSTS_FILE)) {
-    fs.writeFileSync(POSTS_FILE, JSON.stringify([]));
-    return [];
-  }
-  const data = fs.readFileSync(POSTS_FILE, 'utf-8');
-  return JSON.parse(data);
+  if (!fs.existsSync(POSTS_FILE)) return [];
+  return JSON.parse(fs.readFileSync(POSTS_FILE, 'utf-8'));
 }
 
-// Write posts to both GitHub and local file
+// Write posts: GitHub is source of truth, local file is fallback
 export async function writePosts(posts: Post[]): Promise<void> {
-  // Save to local file first
-  ensureDataDir();
-  fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
-  console.log('Saved posts to local file');
-  
-  // Save to GitHub (optional - don't block if it fails)
-  try {
+  if (process.env.GITHUB_TOKEN) {
     const success = await writePostsToGitHub(posts);
     if (success) {
       console.log('Successfully synced posts to GitHub');
-    } else {
-      console.warn('Failed to sync posts to GitHub - continuing with local storage');
+      return;
     }
-  } catch (error) {
-    console.warn('GitHub sync error - continuing with local storage:', error);
+    console.warn('GitHub write failed - falling back to local file');
   }
+
+  ensureDataDir();
+  fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2));
+  console.log('Saved posts to local file');
 }
 
 // Read comments from file

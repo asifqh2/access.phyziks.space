@@ -19,9 +19,12 @@ export const metadata: Metadata = {
   creator: 'Asif Qureshi',
   publisher: 'Phyziks.space',
   icons: {
-    icon: ['/favicon.ico', '/icon.svg'],
-    shortcut: '/favicon.ico',
-    apple: '/icon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.svg', sizes: 'any' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
   openGraph: {
     title: 'Phyziks.space - For Last Benchers, Future Topperss',
@@ -40,8 +43,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg" />
         {/* Google tag (gtag.js) */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-6PQXNGE661"></script>
         <script
@@ -63,15 +68,15 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <div className="flex flex-col min-h-screen bg-transparent">
-          <Header />
-          <main className="flex-grow bg-transparent">
-            {children}
-          </main>
-          <Footer />
-          <FloatingStudyTools />
-          <QuizPopup />
-        </div>
+          <div className="flex flex-col min-h-screen bg-white">
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+            <FloatingStudyTools />
+            <QuizPopup />
+          </div>
       </body>
     </html>
   );

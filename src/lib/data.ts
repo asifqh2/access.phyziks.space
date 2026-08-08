@@ -9,7 +9,7 @@ export async function getAllPosts(): Promise<Post[]> {
     const mdxPosts = getAllPostsFromMDX();
     
     // Get posts from JSON storage
-    const jsonPosts = readPosts();
+    const jsonPosts = await readPosts();
     
     // Combine both sources, MDX first, then sort by creation date
     const allPosts = [...mdxPosts, ...jsonPosts];
@@ -52,7 +52,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 
 export async function getPostsByCategory(category: string): Promise<Post[]> {
   try {
-    const posts = readPosts();
+    const posts = await readPosts();
     return posts
       .filter(post => post.category === category && !post.isHidden)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -109,7 +109,7 @@ export async function createComment(comment: Omit<Comment, 'id' | 'createdAt' | 
 
 export async function incrementPostViews(postId: string): Promise<void> {
   try {
-    const posts = readPosts();
+    const posts = await readPosts();
     const postIndex = posts.findIndex(p => p.id === postId);
     
     if (postIndex !== -1) {
@@ -125,7 +125,7 @@ export async function incrementPostViews(postId: string): Promise<void> {
 
 export async function searchPosts(query: string): Promise<Post[]> {
   try {
-    const posts = readPosts();
+    const posts = await readPosts();
     const lowerQuery = query.toLowerCase();
     
     return posts
@@ -144,7 +144,7 @@ export async function searchPosts(query: string): Promise<Post[]> {
 
 export async function createPost(postData: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Promise<Post> {
   try {
-    const posts = readPosts();
+    const posts = await readPosts();
     const newPost: Post = {
       ...postData,
       id: generateId(),
@@ -165,7 +165,7 @@ export async function createPost(postData: Omit<Post, 'id' | 'createdAt' | 'upda
 
 export async function updatePost(id: string, updates: Partial<Post>): Promise<Post | null> {
   try {
-    const posts = readPosts();
+    const posts = await readPosts();
     const postIndex = posts.findIndex(p => p.id === id);
     
     if (postIndex === -1) {
@@ -188,7 +188,7 @@ export async function updatePost(id: string, updates: Partial<Post>): Promise<Po
 
 export async function deletePost(id: string): Promise<boolean> {
   try {
-    const posts = readPosts();
+    const posts = await readPosts();
     const filteredPosts = posts.filter(p => p.id !== id);
     
     if (filteredPosts.length === posts.length) {

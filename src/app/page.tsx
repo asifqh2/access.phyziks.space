@@ -22,7 +22,7 @@ import MindMapDemo from '@/components/MindMapDemo';
 import GitHubComments from '@/components/GitHubComments';
 
 export const metadata: Metadata = {
-  title: 'Class 11 & 12 Physics Solved Numericals & Papers – HSC & CBSE',
+  title: 'Phyziks.Space',
   description: 'Learn Class 11 & 12 Physics with solved numericals, derivations, diagrams, MCQs, and previous year papers for Maharashtra HSC & CBSE students.',
   keywords: 'Class 11 Physics,Class 12 Physics,HSC Physics,Maharashtra Board Physics,CBSE Physics,Physics numericals,Physics derivations,Physics MCQs,Ray optics numericals,Wave optics,Current electricity,Electrostatics,Magnetism and matter,AC circuits,Semiconductor physics,Previous year physics papers,Physics solved papers',
   openGraph: {
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Class 11 & 12 Physics Solved Numericals & Papers – HSC & CBSE',
+    title: 'Phyziks.Space',
     description: 'Step-by-step Physics numericals, derivations, MCQs, and solved HSC & CBSE board papers.',
   },
   robots: {
@@ -151,7 +151,12 @@ export default async function HomePage() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)',
+        backgroundSize: '20px 20px',
+      }}
+    >
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -162,28 +167,28 @@ export default async function HomePage() {
       <EnhancedHero />
 
       {/* Favorites Guide */}
-      <section className="py-6 sm:py-8 bg-white">
+      <section className="py-6 sm:py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <FavoritesGuide />
         </div>
       </section>
 
       {/* animations */}
-      <section className="py-6 sm:py-8 bg-white">
+      <section className="py-6 sm:py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <Animations />
         </div>
       </section>
 
       {/* Mind Map Demo */}
-      <section className="py-12 sm:py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+      <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <MindMapDemo />
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-12 sm:py-16 bg-gray-50">
+      <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3 sm:mb-4 text-gray-900">
             Explore Our Educational Resources
@@ -217,7 +222,7 @@ export default async function HomePage() {
 
 
       {/* Advertisement - Top */}
-      <section className="py-6 sm:py-8 bg-white">
+      <section className="py-6 sm:py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gray-50 rounded-lg p-4 sm:p-8 text-center border-2 border-dashed border-gray-300 min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
             <div className="text-gray-400">
@@ -259,7 +264,7 @@ export default async function HomePage() {
       </section>
 
       {/* Advertisement - Bottom */}
-      <section className="py-6 sm:py-8 bg-gray-50">
+      <section className="py-6 sm:py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg p-4 sm:p-8 text-center border-2 border-dashed border-gray-300 min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
             <div className="text-gray-400">
@@ -271,7 +276,7 @@ export default async function HomePage() {
       </section>
 
 
-      <section className="py-8 sm:py-12 bg-gradient-to-br from-indigo-50 to-blue-50">
+      <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
             Interactive Study Tools
@@ -286,7 +291,7 @@ export default async function HomePage() {
       </section>
 
       {/* Quick Access Features */}
-      <section className="py-8 sm:py-12 bg-white">
+      <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
             Quick Study Tools
@@ -332,7 +337,7 @@ export default async function HomePage() {
       </section>
 
       {/* Comments Section */}
-      <section className="py-8 sm:py-12 bg-gray-50">
+      <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <GitHubComments
             postId="homepage"

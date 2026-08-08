@@ -7,12 +7,15 @@ import MathRenderer from './MathRenderer';
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
+  id?: string;
+  minHeight?: string;
+  compact?: boolean;
 }
 
-export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
+export default function RichTextEditor({ value, onChange, id = 'content-editor', minHeight = '300px', compact = false }: RichTextEditorProps) {
 
   const insertFormatting = (before: string, after: string = '') => {
-    const textarea = document.getElementById('content-editor') as HTMLTextAreaElement;
+    const textarea = document.getElementById(id) as HTMLTextAreaElement;
     if (!textarea) return;
 
     const start = textarea.selectionStart;
@@ -245,54 +248,59 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         {/* Editor Area */}
         <div className="p-2 sm:p-4">
           <textarea
-            id="content-editor"
+            id={id}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full min-h-[300px] sm:min-h-[400px] p-2 sm:p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-mono text-xs sm:text-sm"
+            style={{ minHeight }}
+            className="w-full p-2 sm:p-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-mono text-xs sm:text-sm"
             placeholder="Write your content here using HTML tags..."
           />
         </div>
 
         {/* Preview */}
-        <div className="border-t p-2 sm:p-4 bg-gray-50">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">Live Preview:</h3>
-            <span className="text-xs text-gray-500">HTML + LaTeX rendered below</span>
+        {!compact && (
+          <div className="border-t p-2 sm:p-4 bg-gray-50">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+              <h3 className="text-sm font-semibold text-gray-700">Live Preview:</h3>
+              <span className="text-xs text-gray-500">HTML + LaTeX rendered below</span>
+            </div>
+            <div
+              className="bg-white p-2 sm:p-4 rounded border min-h-[150px] sm:min-h-[200px] prose prose-sm max-w-none text-gray-900 overflow-x-auto"
+              dangerouslySetInnerHTML={{ __html: value }}
+            />
           </div>
-          <div 
-            className="bg-white p-2 sm:p-4 rounded border min-h-[150px] sm:min-h-[200px] prose prose-sm max-w-none text-gray-900 overflow-x-auto"
-            dangerouslySetInnerHTML={{ __html: value }}
-          />
-        </div>
+        )}
 
         {/* Quick Reference */}
-        <div className="border-t p-2 sm:p-4 bg-gray-50">
-          <details className="text-xs text-gray-600">
-            <summary className="cursor-pointer font-semibold hover:text-gray-900 py-2">
-              HTML Quick Reference
-            </summary>
-            <div className="mt-2 space-y-1 pl-2 sm:pl-4 grid grid-cols-1 sm:grid-cols-2 gap-1">
-              <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<h1>Title</h1>'}</code> - Main heading</p>
-              <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<h2>Subtitle</h2>'}</code> - Sub heading</p>
-              <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<p>Text</p>'}</code> - Paragraph</p>
-              <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<strong>Bold</strong>'}</code> - Bold text</p>
-              <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<em>Italic</em>'}</code> - Italic text</p>
-              <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<a href="url">Link</a>'}</code> - Hyperlink</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<img src="url" alt="desc" />'}</code> - Image</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<img src="url" loading="lazy" />'}</code> - Lazy loaded image</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<ul><li>Item</li></ul>'}</code> - Bullet list</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<ol><li>Item</li></ol>'}</code> - Numbered list</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<div class="bg-blue-50 p-4">Box</div>'}</code> - Styled box</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<table><tr><td>Cell</td></tr></table>'}</code> - Table</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<script>alert("Hello")</script>'}</code> - JavaScript</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<button onclick="func()">Click</button>'}</code> - Interactive button</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'$E = mc^2$'}</code> - Inline math</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'$$\\frac{a}{b}$$'}</code> - Block math</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'x^{2}'}</code> - Superscript</p>
-              <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'H_{2}O'}</code> - Subscript</p>
-            </div>
-          </details>
-        </div>
+        {!compact && (
+          <div className="border-t p-2 sm:p-4 bg-gray-50">
+            <details className="text-xs text-gray-600">
+              <summary className="cursor-pointer font-semibold hover:text-gray-900 py-2">
+                HTML Quick Reference
+              </summary>
+              <div className="mt-2 space-y-1 pl-2 sm:pl-4 grid grid-cols-1 sm:grid-cols-2 gap-1">
+                <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<h1>Title</h1>'}</code> - Main heading</p>
+                <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<h2>Subtitle</h2>'}</code> - Sub heading</p>
+                <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<p>Text</p>'}</code> - Paragraph</p>
+                <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<strong>Bold</strong>'}</code> - Bold text</p>
+                <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<em>Italic</em>'}</code> - Italic text</p>
+                <p><code className="bg-gray-200 text-gray-900 px-1 rounded text-xs">{'<a href="url">Link</a>'}</code> - Hyperlink</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<img src="url" alt="desc" />'}</code> - Image</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<img src="url" loading="lazy" />'}</code> - Lazy loaded image</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<ul><li>Item</li></ul>'}</code> - Bullet list</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<ol><li>Item</li></ol>'}</code> - Numbered list</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<div class="bg-blue-50 p-4">Box</div>'}</code> - Styled box</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<table><tr><td>Cell</td></tr></table>'}</code> - Table</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<script>alert("Hello")</script>'}</code> - JavaScript</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'<button onclick="func()">Click</button>'}</code> - Interactive button</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'$E = mc^2$'}</code> - Inline math</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'$$\\frac{a}{b}$$'}</code> - Block math</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'x^{2}'}</code> - Superscript</p>
+                <p><code className="bg-gray-200 px-1 text-gray-900 rounded text-xs">{'H_{2}O'}</code> - Subscript</p>
+              </div>
+            </details>
+          </div>
+        )}
       </div>
     </div>
   );

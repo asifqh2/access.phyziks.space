@@ -1,6 +1,7 @@
 // src/components/Footer.tsx
 import Link from 'next/link';
-import { GraduationCap, Mail, Phone, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,9 +12,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <GraduationCap className="h-8 w-8 text-blue-300" />
-              <span className="text-xl font-bold text-white">Phyziks.space</span>
+            <div className="mb-4">
+              <Image src="/logo.svg" alt="Phyziks.space" width={280} height={70} />
             </div>
             <p className="text-sm text-blue-200">
               Your complete educational resource platform for exam preparation, notes, and study materials.

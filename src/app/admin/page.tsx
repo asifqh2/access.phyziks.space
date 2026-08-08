@@ -191,9 +191,11 @@ export default function AdminDashboard() {
 
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<any>(null);
+  const [iitQuestions, setIitQuestions] = useState<any[]>([]);
 
   useEffect(() => {
     fetchQuizzes();
+    fetchIITQuestions();
   }, []);
 
   const fetchQuizzes = async () => {
@@ -205,6 +207,33 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error fetching quizzes:', error);
+    }
+  };
+
+  const fetchIITQuestions = async () => {
+    try {
+      const response = await fetch('/api/iit-questions');
+      if (response.ok) {
+        const data = await response.json();
+        setIitQuestions(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Error fetching IIT questions:', error);
+    }
+  };
+
+  const deleteIITQuestion = async (id: string) => {
+    if (!confirm('Delete this question?')) return;
+    try {
+      const response = await fetch('/api/iit-questions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (response.ok) fetchIITQuestions();
+      else alert('❌ Failed to delete');
+    } catch {
+      alert('❌ Error deleting question');
     }
   };
 
@@ -288,6 +317,13 @@ export default function AdminDashboard() {
               >
                 <Plus className="w-5 h-5" />
                 Create Quiz
+              </Link>
+              <Link
+                href="/create-iit-question"
+                className="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold shadow-md"
+              >
+                <Plus className="w-5 h-5" />
+                Create IIT Question
               </Link>
               <button
                 onClick={handleLogout}
@@ -381,6 +417,90 @@ export default function AdminDashboard() {
           <div className="mt-3 text-sm text-gray-600">
             Showing <span className="font-semibold text-indigo-600">{filteredPosts.length}</span> of <span className="font-semibold">{posts.length}</span> posts
           </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">🧠 IIT Questions</h2>
+            <Link
+              href="/create-iit-question"
+              className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              Create IIT Question
+            </Link>
+          </div>
+          {iitQuestions.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">🧠</div>
+              <p className="text-gray-500 text-lg">No IIT questions yet.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Question</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exam</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pattern</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Chapter</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Topic</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subtopic</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timer</th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {iitQuestions.map((q, i) => (
+                    <tr key={q.id} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="px-4 py-3 text-sm text-gray-900 max-w-xs">
+                        <p className="line-clamp-2">{q.question || q.assertion || q.columnA?.[0] || '—'}</p>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-bold rounded-full ${
+                          q.exam === 'jee-main' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                        }`}>
+                          {q.exam === 'jee-main' ? 'JEE Main' : 'JEE Advanced'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{q.patternId}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{q.subject}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{q.chapter || '—'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{q.topic || '—'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{q.subtopic || '—'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">{q.timer}s</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex justify-center gap-2">
+                          <Link href={`/iitian-mentor`}
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                            <Eye className="w-3.5 h-3.5" /> View
+                          </Link>
+                          <Link href={`/edit-iit-question?id=${q.id}`}
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                            <Edit className="w-3.5 h-3.5" /> Edit
+                          </Link>
+                          <button onClick={() => {
+                            fetch('/api/iit-questions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: q.id, isHidden: !q.isHidden }) })
+                              .then(() => fetchIITQuestions());
+                          }}
+                            className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                              q.isHidden ? 'text-green-600 bg-green-50 hover:bg-green-100' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'
+                            }`}>
+                            {q.isHidden ? <><Eye className="w-3.5 h-3.5" /> Show</> : <><EyeOff className="w-3.5 h-3.5" /> Hide</>}
+                          </button>
+                          <button onClick={() => deleteIITQuestion(q.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                            <Trash2 className="w-3.5 h-3.5" /> Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
