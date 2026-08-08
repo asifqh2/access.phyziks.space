@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Save, ArrowLeft } from 'lucide-react';
 import RichTextEditor from '@/components/RichTextEditor';
 import Link from 'next/link';
 
-export default function EditIITQuestionPage() {
+function EditIITQuestionForm() {
   const router = useRouter();
   const params = useSearchParams();
   const id = params.get('id');
@@ -287,5 +287,17 @@ export default function EditIITQuestionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EditIITQuestionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
+      </div>
+    }>
+      <EditIITQuestionForm />
+    </Suspense>
   );
 }
