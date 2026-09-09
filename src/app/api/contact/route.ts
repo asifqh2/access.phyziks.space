@@ -2,8 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Initialise once — the key is read server-side only and never sent to the browser
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(apiKey);
+}
 
 const RECIPIENT_EMAIL = 'phyziks.space@gmail.com';
 const FROM_ADDRESS    = 'Phyziks Contact <onboarding@resend.dev>';
@@ -60,6 +65,7 @@ export async function POST(request: NextRequest) {
     const subjectLabel = SUBJECT_LABELS[subject];
 
     // ── Send email via Resend ─────────────────────────────────────────────────
+    const resend = getResendClient();
     const { error: resendError } = await resend.emails.send({
       from   : FROM_ADDRESS,
       to     : RECIPIENT_EMAIL,
