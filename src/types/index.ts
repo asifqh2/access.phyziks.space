@@ -14,6 +14,7 @@ export interface Post {
   concepts?: string[];
   year?: number;
   subject?: string;
+  requiredPlan?: 'free' | 'pro' | 'premium';
   youtubeUrl?: string;
   pdfUrl?: string;
   wordUrl?: string;

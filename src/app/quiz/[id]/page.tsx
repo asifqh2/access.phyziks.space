@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, Target, Trophy, Eye, Edit, Trash2 } from 'lucide-reac
 import Link from 'next/link';
 import { Quiz } from '@/types';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
+import ContentRenderer from '@/components/ContentRenderer';
 
 export default function QuizViewPage() {
   const params = useParams();
@@ -185,7 +186,9 @@ export default function QuizViewPage() {
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-900" dangerouslySetInnerHTML={{ __html: quiz.description }} />
+            <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">
+              <ContentRenderer content={quiz.description} />
+            </div>
           </div>
 
           {quiz.tags && quiz.tags.length > 0 && (
@@ -220,7 +223,9 @@ export default function QuizViewPage() {
                           {question.type || 'multiple-choice'}
                         </span>
                       </div>
-                      <div dangerouslySetInnerHTML={{ __html: question.question }} className="text-gray-800 mb-4" />
+                      <div className="text-gray-800 mb-4">
+                        <ContentRenderer content={question.question} />
+                      </div>
                     </div>
                   </div>
                   
@@ -247,7 +252,9 @@ export default function QuizViewPage() {
                     {question.explanation && (
                       <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
                         <h4 className="font-semibold text-blue-900 mb-2">Explanation:</h4>
-                        <div dangerouslySetInnerHTML={{ __html: question.explanation }} className="text-blue-800" />
+                        <div className="text-blue-800">
+                          <ContentRenderer content={question.explanation} />
+                        </div>
                       </div>
                     )}
                   </div>

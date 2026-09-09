@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Plus, Trash2, Save, ArrowLeft, Zap, Target, Clock, Trophy, Star, Gamepad2 } from 'lucide-react';
 import Link from 'next/link';
 import RichTextEditor from '@/components/RichTextEditor';
+import ContentRenderer from '@/components/ContentRenderer';
 import { Quiz, QuizQuestion } from '@/types';
 
 export default function CreateQuizPage() {
@@ -392,7 +393,9 @@ export default function CreateQuizPage() {
                     </button>
                   </div>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: question.question }} className="mb-3 text-gray-800" />
+                <div className="mb-3 text-gray-800">
+                  <ContentRenderer content={question.question} />
+                </div>
                 <div className="space-y-2">
                   {question.options.map((option, optIndex) => (
                     <div key={optIndex} className={`p-2 rounded ${optIndex === question.correctAnswer ? 'bg-green-100 border border-green-300' : 'bg-gray-50'}`}>
@@ -403,7 +406,8 @@ export default function CreateQuizPage() {
                 </div>
                 {question.explanation && (
                   <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-                    <strong>Explanation:</strong> <span dangerouslySetInnerHTML={{ __html: question.explanation }} />
+                    <strong>Explanation:</strong>{' '}
+                    <ContentRenderer content={question.explanation} className="inline" />
                   </div>
                 )}
               </div>

@@ -1,24 +1,18 @@
 import { Node, mergeAttributes } from '@tiptap/core';
-import katex from 'katex';
 
 /**
- * A simple TipTap extension for inline and block math rendering using KaTeX.
+ * Inline math node — renders inside paragraphs/headings.
+ * Stored as: <span data-type="math-inline" data-content="x^2">
  */
-export const MathExtension = Node.create({
-  name: 'math',
-
-  group: 'inline block',
+export const MathInline = Node.create({
+  name: 'mathInline',
+  group: 'inline',
   inline: true,
   atom: true,
 
   addAttributes() {
     return {
-      content: {
-        default: '',
-      },
-      displayMode: {
-        default: false,
-      },
+      content: { default: '' },
     };
   },
 
@@ -27,42 +21,74 @@ export const MathExtension = Node.create({
       {
         tag: 'span[data-type="math-inline"]',
         getAttrs: (el) => ({
-          content: (el as HTMLElement).getAttribute('data-content'),
-          displayMode: false,
+          content: (el as HTMLElement).getAttribute('data-content') ?? '',
         }),
       },
+      // Legacy: plain <span class="math-inline">$...$</span>
       {
-        tag: 'div[data-type="math-display"]',
+        tag: 'span.math-inline',
         getAttrs: (el) => ({
-          content: (el as HTMLElement).getAttribute('data-content'),
-          displayMode: true,
+          content: (el as HTMLElement).textContent?.replace(/^\$|\$$/g, '') ?? '',
         }),
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    const { content, displayMode } = HTMLAttributes;
-    
-    if (displayMode) {
-      return [
-        'div',
-        mergeAttributes(
-          { 'data-type': 'math-display', 'data-content': content },
-          this.options.HTMLAttributes
-        ),
-        0,
-      ];
-    }
-
     return [
       'span',
-      mergeAttributes(
-        { 'data-type': 'math-inline', 'data-content': content },
-        this.options.HTMLAttributes
-      ),
+      mergeAttributes({ 'data-type': 'math-inline', 'data-content': HTMLAttributes.content }),
       0,
     ];
   },
-
 });
+
+/**
+ * Block math node — renders as its own paragraph-level block.
+ * Stored as: <div data-type="math-display" data-content="\sum_i i">
+ */
+export const MathBlock = Node.create({
+  name: 'mathBlock',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      content: { default: '' },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-type="math-display"]',
+        getAttrs: (el) => ({
+          content: (el as HTMLElement).getAttribute('data-content') ?? '',
+        }),
+      },
+      // Legacy: <p class="math-display">$$...$$</p> or <div class="math-display">$$...$$</div>
+      {
+        tag: 'p.math-display',
+        getAttrs: (el) => ({
+          content: (el as HTMLElement).textContent?.replace(/^\$\$|\$\$$/g, '').trim() ?? '',
+        }),
+      },
+      {
+        tag: 'div.math-display',
+        getAttrs: (el) => ({
+          content: (el as HTMLElement).textContent?.replace(/^\$\$|\$\$$/g, '').trim() ?? '',
+        }),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      mergeAttributes({ 'data-type': 'math-display', 'data-content': HTMLAttributes.content }),
+    ];
+  },
+});
+
+// Re-export a single object for convenience
+export const MathExtension = [MathInline, MathBlock];

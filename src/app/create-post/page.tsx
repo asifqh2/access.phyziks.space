@@ -24,6 +24,7 @@ export default function CreatePostPage() {
     content: '',
     category: 'syllabus' as any,
     subject: '',
+    requiredPlan: 'free' as 'free' | 'pro' | 'premium',
     chapters: [] as string[],
     topics: [] as string[],
     concepts: [] as string[],
@@ -160,6 +161,7 @@ export default function CreatePostPage() {
         content: '',
         category: 'syllabus' as any,
         subject: '',
+        requiredPlan: 'free' as 'free' | 'pro' | 'premium',
         chapters: [] as string[],
         topics: [] as string[],
         concepts: [] as string[],
@@ -345,6 +347,22 @@ const handleFileUpload = async (file: File, folder: 'pdfs' | 'word' | 'images') 
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                       placeholder="e.g., Physics, Chemistry"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Access plan
+                    </label>
+                    <select
+                      name="requiredPlan"
+                      value={formData.requiredPlan}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    >
+                      <option value="free">Free</option>
+                      <option value="pro">Pro (chapter access)</option>
+                      <option value="premium">Premium (subject access)</option>
+                    </select>
                   </div>
                 </div>
 

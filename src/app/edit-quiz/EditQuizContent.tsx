@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Plus, Trash2, Save, ArrowLeft, Edit } from 'lucide-react';
 import Link from 'next/link';
 import RichTextEditor from '@/components/RichTextEditor';
+import ContentRenderer from '@/components/ContentRenderer';
 import { Quiz, QuizQuestion } from '@/types';
 
 export default function EditQuizContent() {
@@ -307,7 +308,9 @@ export default function EditQuizContent() {
                     </button>
                   </div>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: question.question }} className="mb-3 text-gray-800" />
+                <div className="mb-3 text-gray-800">
+                  <ContentRenderer content={question.question} />
+                </div>
                 <div className="space-y-2">
                   {question.options.map((option, optIndex) => (
                     <div key={optIndex} className={`p-2 rounded text-gray-900 ${optIndex === question.correctAnswer ? 'bg-green-100 border border-green-300' : 'bg-gray-50'}`}>

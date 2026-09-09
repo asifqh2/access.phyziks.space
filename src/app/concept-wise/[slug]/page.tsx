@@ -3,8 +3,10 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPostBySlug, incrementPostViews } from '@/lib/data';
+import { canCurrentUserAccessContent } from '@/lib/content-access';
 import CommentSection from '@/components/CommentSection';
 import MDXContent from '@/components/MDXContent';
+import MathRenderer from '@/components/MathRenderer';
 import { formatDate, extractYouTubeId } from '@/lib/utils';
 import { Calendar, Eye, Tag, FileDown, Video, Brain, ChevronRight, Lightbulb } from 'lucide-react';
 
@@ -33,6 +35,10 @@ export default async function ConceptDetailPage({ params }: Props) {
 
   if (!post) {
     notFound();
+  }
+
+  if (!(await canCurrentUserAccessContent(post.requiredPlan))) {
+    return <main className="min-h-screen bg-gray-50 px-4 py-16"><div className="mx-auto max-w-xl rounded-2xl bg-white p-8 text-center shadow-lg"><h1 className="text-2xl font-bold text-gray-900">Paid access required</h1><p className="mt-3 text-gray-600">This concept requires the {post.requiredPlan} plan.</p><Link href="/pricing" className="mt-6 inline-block rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white">View plans</Link></div></main>;
   }
 
   await incrementPostViews(post.id);
@@ -171,9 +177,9 @@ export default async function ConceptDetailPage({ params }: Props) {
 
         {/* Content */}
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <div 
-            className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+          <MathRenderer
+            content={post.content}
+            className="prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600"
           />
         </div>
 

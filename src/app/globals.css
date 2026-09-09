@@ -189,3 +189,272 @@ body {
   border-radius: 4px;
   cursor: pointer;
 }
+
+/* ===== LMS PORTAL DESIGN TOKENS ===== */
+:root {
+  --lms-primary: #4f46e5;
+  --lms-primary-dark: #3730a3;
+  --lms-primary-light: #818cf8;
+  --lms-accent: #f59e0b;
+  --lms-accent-dark: #d97706;
+  --lms-success: #10b981;
+  --lms-danger: #ef4444;
+  --lms-surface: #f8fafc;
+  --lms-card: #ffffff;
+  --lms-border: #e2e8f0;
+  --lms-text: #0f172a;
+  --lms-muted: #64748b;
+  --lms-radius: 16px;
+  --lms-shadow: 0 4px 24px rgba(79, 70, 229, 0.08);
+  --lms-shadow-hover: 0 12px 40px rgba(79, 70, 229, 0.18);
+}
+
+/* ===== LMS HERO ANIMATIONS ===== */
+@keyframes lms-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes lms-pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes lms-slide-up {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes lms-slide-in-right {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes lms-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes lms-progress-fill {
+  from { width: 0%; }
+  to { width: var(--progress-width, 75%); }
+}
+
+@keyframes lms-count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lms-badge-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes lms-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(79, 70, 229, 0.6); }
+}
+
+.lms-float { animation: lms-float 6s ease-in-out infinite; }
+.lms-slide-up { animation: lms-slide-up 0.6s ease-out forwards; }
+.lms-slide-in-right { animation: lms-slide-in-right 0.7s ease-out forwards; }
+.lms-badge-pop { animation: lms-badge-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.lms-glow { animation: lms-glow 3s ease-in-out infinite; }
+
+.lms-shimmer-text {
+  background: linear-gradient(90deg, #4f46e5, #818cf8, #f59e0b, #4f46e5);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: lms-shimmer 4s linear infinite;
+}
+
+/* ===== PRICING CARD STYLES ===== */
+.pricing-card {
+  position: relative;
+  border-radius: var(--lms-radius);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.pricing-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--lms-shadow-hover);
+}
+
+.pricing-card-popular {
+  border: 2px solid var(--lms-primary);
+  box-shadow: var(--lms-shadow);
+}
+
+.pricing-card-popular::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(129, 140, 248, 0.04) 100%);
+  pointer-events: none;
+}
+
+.pricing-toggle-track {
+  position: relative;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  transition: background 0.3s ease;
+}
+
+.pricing-toggle-track.active {
+  background: var(--lms-primary);
+}
+
+.pricing-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: white;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.pricing-toggle-thumb.active {
+  transform: translateX(20px);
+}
+
+/* ===== COURSE CARD STYLES ===== */
+.course-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.course-progress-bar {
+  height: 6px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.course-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--lms-primary), var(--lms-primary-light));
+  animation: lms-progress-fill 1.5s ease-out forwards;
+}
+
+/* ===== LMS STAT CARDS ===== */
+.lms-stat-card {
+  border-radius: 12px;
+  padding: 16px 24px;
+  text-align: center;
+  animation: lms-count-up 0.6s ease-out forwards;
+}
+
+/* ===== LMS BADGE STYLES ===== */
+.lms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.lms-badge-primary {
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--lms-primary);
+}
+
+.lms-badge-accent {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--lms-accent-dark);
+}
+
+.lms-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--lms-success);
+}
+
+/* ===== LMS BUTTON STYLES ===== */
+.lms-btn-primary {
+  background: linear-gradient(135deg, var(--lms-primary) 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.lms-btn-primary:hover {
+  background: linear-gradient(135deg, var(--lms-primary-dark) 0%, var(--lms-primary) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
+.lms-btn-outline {
+  background: transparent;
+  color: var(--lms-primary);
+  border: 2px solid var(--lms-primary);
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.lms-btn-outline:hover {
+  background: var(--lms-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ===== SECTION DIVIDERS ===== */
+.lms-section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lms-border), transparent);
+  margin: 0;
+}
+
+/* ===== GLASSMORPHISM CARD ===== */
+.lms-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* ===== RESPONSIVE HELPERS ===== */
+@media (max-width: 768px) {
+  .pricing-card:hover {
+    transform: none;
+  }
+}
+
+
+/* ===== STUDIO FORM FIELD ===== */
+.lms-field {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.lms-field:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}

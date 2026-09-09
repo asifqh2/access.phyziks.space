@@ -265,9 +265,10 @@ export default function RichTextEditor({ value, onChange, id = 'content-editor',
               <span className="text-xs text-gray-500">HTML + LaTeX rendered below</span>
             </div>
             <div
-              className="bg-white p-2 sm:p-4 rounded border min-h-[150px] sm:min-h-[200px] prose prose-sm max-w-none text-gray-900 overflow-x-auto"
-              dangerouslySetInnerHTML={{ __html: value }}
-            />
+              className="bg-white p-2 sm:p-4 rounded border min-h-[150px] sm:min-h-[200px] overflow-x-auto"
+            >
+              <MathRenderer content={value} className="prose prose-sm max-w-none text-gray-900" />
+            </div>
           </div>
         )}
 

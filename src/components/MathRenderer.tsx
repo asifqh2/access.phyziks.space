@@ -113,7 +113,36 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
         }
       });
 
-      // Process HTML-wrapped math from editor
+      // Process HTML-wrapped math from editor (new data-type format)
+      processedContent = processedContent.replace(/<div[^>]*data-type="math-display"[^>]*data-content="([^"]{1,1000})"[^>]*><\/div>/g, (match, latex) => {
+        try {
+          const cleanLatex = latex.trim();
+          if (!cleanLatex) return match;
+          const rendered = katex.renderToString(cleanLatex, {
+            displayMode: true, throwOnError: false, strict: false, maxSize: 10, maxExpand: 100,
+          });
+          return `<div class="katex-display-block">${rendered}</div>`;
+        } catch (error) {
+          console.error('HTML Block math error (data-type):', error);
+          return `<div class="math-error">Math Error: ${latex.substring(0, 50)}...</div>`;
+        }
+      });
+
+      processedContent = processedContent.replace(/<span[^>]*data-type="math-inline"[^>]*data-content="([^"]{1,200})"[^>]*>[^<]*<\/span>/g, (match, latex) => {
+        try {
+          const cleanLatex = latex.trim();
+          if (!cleanLatex) return match;
+          const rendered = katex.renderToString(cleanLatex, {
+            displayMode: false, throwOnError: false, strict: false, maxSize: 10, maxExpand: 100,
+          });
+          return `<span class="katex-inline">${rendered}</span>`;
+        } catch (error) {
+          console.error('HTML Inline math error (data-type):', error);
+          return `<span class="math-error">Math Error: ${latex.substring(0, 20)}...</span>`;
+        }
+      });
+
+      // Process HTML-wrapped math from editor (legacy class format)
       processedContent = processedContent.replace(/<div class="math-display">\$\$([\s\S]{1,1000}?)\$\$<\/div>/g, (match, latex) => {
         try {
           const cleanLatex = latex.trim();

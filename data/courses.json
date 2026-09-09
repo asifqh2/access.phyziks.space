@@ -1,0 +1,109 @@
+[
+  {
+    "id": "physics-12",
+    "slug": "physics-class-12",
+    "title": "Class 12 Physics: Complete Course",
+    "description": "Build a strong foundation with clear video lessons, chapter notes and practice.",
+    "level": "Class 12",
+    "instructor": "Phyziks Faculty",
+    "cover": "from-indigo-600 to-violet-700",
+    "chapters": [
+      {
+        "id": "electrostatics",
+        "title": "1. Electrostatics",
+        "lessons": [
+          {
+            "id": "electric-charge",
+            "title": "Electric charge and Coulomb’s law",
+            "duration": "18 min",
+            "videoUrl": "https://www.youtube.com/watch?v=Rj0s7iZ6bKg",
+            "description": "Understand charge, force and the inverse-square law."
+          },
+          {
+            "id": "electric-field",
+            "title": "Electric field and field lines",
+            "duration": "22 min",
+            "videoUrl": "",
+            "description": "Visualise electric fields with worked examples."
+          }
+        ]
+      },
+      {
+        "id": "current-electricity",
+        "title": "2. Current Electricity",
+        "lessons": [
+          {
+            "id": "ohms-law",
+            "title": "Ohm’s law and resistance",
+            "duration": "20 min",
+            "videoUrl": "",
+            "description": "Learn circuits, resistance and practical applications."
+          }
+        ]
+      },
+      {
+        "id": "92915b45-fee8-4fdf-8312-08f12a22231e",
+        "title": "test",
+        "lessons": [
+          {
+            "title": "ttttttttttt",
+            "duration": "1",
+            "videoUrl": "https://www.youtube.com/watch?v=aJnm3MqNoLE",
+            "description": "dsfgdf",
+            "id": "771493ed-3c90-4975-9566-7f2f0c0387c9"
+          },
+          {
+            "title": "ttttttttttt",
+            "duration": "1",
+            "videoUrl": "https://www.youtube.com/watch?v=aJnm3MqNoLE",
+            "description": "dsfgdf",
+            "id": "4bce3e72-0f55-43cc-8e29-894c5a2897cb",
+            "notes": "notes hereeee"
+          }
+        ]
+      },
+      {
+        "id": "52675004-d2dd-411a-9b5c-b26b62c54f70",
+        "title": "ZXv",
+        "lessons": []
+      },
+      {
+        "id": "267f8011-c95b-47a7-b633-ccb7a165f8df",
+        "title": "ZXv",
+        "lessons": []
+      }
+    ]
+  },
+  {
+    "id": "dummy-mathematics-101",
+    "slug": "dummy-mathematics-101",
+    "title": "Dummy Mathematics 101",
+    "description": "A sample course containing every available course, chapter, and lesson field.",
+    "level": "Foundation",
+    "instructor": "Demo Instructor",
+    "cover": "from-emerald-600 to-teal-700",
+    "chapters": [
+      {
+        "id": "dummy-algebra",
+        "title": "1. Algebra Basics",
+        "notesLink": "https://example.com/dummy-algebra-notes.pdf",
+        "lessons": [
+          {
+            "id": "dummy-linear-equations",
+            "title": "Solving linear equations",
+            "duration": "15 min",
+            "videoUrl": "https://www.youtube.com/watch?v=example",
+            "description": "Practice solving one-variable linear equations.",
+            "notes": "Isolate the variable by applying inverse operations to both sides."
+          }
+        ]
+      },
+      {
+        "id": "dummy-geometry",
+        "title": "2. Geometry Review",
+        "notesLink": "https://example.com/dummy-geometry-notes.pdf",
+        "lessons": []
+      }
+    ]
+  }
+]

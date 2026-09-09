@@ -2,8 +2,11 @@
 // Copy this file structure for each category folder
 
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getPostBySlug, incrementPostViews, getPublicPosts } from '@/lib/data';
+import { notFound, redirect } from 'next/navigation';
+import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
+import { getPostBySlug, getPublicPosts } from '@/lib/data';
+import { canCurrentUserAccessContent } from '@/lib/content-access';
 import CommentSection from '@/components/CommentSection';
 import { formatDate, extractYouTubeId } from '@/lib/utils';
 import { getRelatedContent, addIdsToContent } from '@/lib/post-utils';
@@ -28,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${post.title} | Phyziks.space`,
+    title: `${post.title} | Phyziks.Space`,
     description: post.description,
     keywords: (post.tags || []).join(', '),
     openGraph: {
@@ -47,8 +50,37 @@ export default async function PostDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Increment views (in production, do this client-side to avoid counting bots)
-  await incrementPostViews(post.id);
+  if (post.requiredPlan && post.requiredPlan !== 'free') {
+    const { userId } = await auth();
+
+    // Not signed in — redirect to sign-in so users aren't stuck at a dead-end paywall
+    if (!userId) {
+      redirect(`/sign-in?redirect_url=/${post.category}/${post.slug}`);
+    }
+
+    const hasAccess = await canCurrentUserAccessContent(post.requiredPlan);
+
+    if (!hasAccess) {
+      return (
+        <main className="min-h-screen bg-gray-50 px-4 py-16">
+          <div className="mx-auto max-w-xl rounded-2xl bg-white p-8 text-center shadow-lg">
+            <h1 className="text-2xl font-bold text-gray-900">Paid access required</h1>
+            <p className="mt-3 text-gray-600">
+              This {post.category} requires the {post.requiredPlan} plan.
+            </p>
+            <Link href="/pricing" className="mt-6 inline-block rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white">
+              View plans
+            </Link>
+          </div>
+        </main>
+      );
+    }
+  }
+
+  // Increment views client-side (via a small client component) to avoid
+  // counting server-side renders triggered by bots and crawlers.
+  // The call below is intentionally removed from the server render path.
+  // TODO: replace with a client-side beacon (e.g. <ViewTracker postId={post.id} />)
 
   const youtubeId = post.youtubeUrl ? extractYouTubeId(post.youtubeUrl) : null;
   const contentWithIds = addIdsToContent(post.content);
@@ -134,7 +166,7 @@ export default async function PostDetailPage({ params }: Props) {
               <Eye className="w-4 h-4" />
               {post.views} views
             </span>
-            {post.subject && (
+            {!!post.subject && (
               <span className="px-3 py-1 bg-gray-100 rounded-full">
                 {post.subject}
               </span>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Clock, Users, Trophy, Play, BookOpen, Target, Award } from 'lucide-react';
 import { Quiz } from '@/types';
 import PinButton from '@/components/PinButton';
+import ContentRenderer from '@/components/ContentRenderer';
 
 export default function QuizPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -300,10 +301,9 @@ export default function QuizPage() {
             </div>
 
             <div className="mb-8">
-              <div 
-                className="text-lg text-gray-900 mb-6"
-                dangerouslySetInnerHTML={{ __html: question.question }}
-              />
+              <div className="text-lg text-gray-900 mb-6">
+                <ContentRenderer content={question.question} />
+              </div>
               
               {/* Multiple Choice */}
               {(!question.type || question.type === 'multiple-choice') && (
@@ -655,10 +655,9 @@ export default function QuizPage() {
                   </span>
                 </div>
 
-                <div 
-                  className="text-gray-600 mb-4 line-clamp-3"
-                  dangerouslySetInnerHTML={{ __html: quiz.description }}
-                />
+                <div className="text-gray-600 mb-4 line-clamp-3">
+                  <ContentRenderer content={quiz.description} />
+                </div>
 
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
                   <div className="flex items-center gap-1">

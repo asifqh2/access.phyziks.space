@@ -13,32 +13,34 @@ import { Link } from '@tiptap/extension-link';
 import { Image } from '@tiptap/extension-image';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 
-
 import { MathExtension } from '@/extensions/MathExtension';
 import 'highlight.js/styles/github.css';
-
-
 
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, 
   Heading1, Heading2, Heading3, List, ListOrdered, Quote,
   Undo, Redo, Link2, Image as ImageIcon, Table as TableIcon,
-  AlignLeft, AlignCenter, AlignRight, FileCode, Eye, Sigma, GitBranch
+  AlignLeft, AlignCenter, AlignRight, FileCode, Eye, Sigma
 } from 'lucide-react';
 import { useState } from 'react';
 import { common, createLowlight } from 'lowlight';
 import 'katex/dist/katex.min.css';
 
 const lowlight = createLowlight(common);
-
 interface AdvancedHTMLEditorProps {
   value: string;
   onChange: (value: string) => void;
 }
 
+// Normalize legacy <div class="math-display"> to <p> so ProseMirror doesn't
+// complain about block elements in inline content positions.
+function normalizeContent(html: string): string {
+  return html.replace(/<div([^>]*class="math-display"[^>]*)>([\s\S]*?)<\/div>/g, '<p$1>$2</p>');
+}
+
 export default function AdvancedHTMLEditor({ value, onChange }: AdvancedHTMLEditorProps) {
   const [showHTML, setShowHTML] = useState(false);
-  const [htmlCode, setHtmlCode] = useState(value);
+  const [htmlCode, setHtmlCode] = useState(() => normalizeContent(value));
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -76,10 +78,9 @@ export default function AdvancedHTMLEditor({ value, onChange }: AdvancedHTMLEdit
           class: 'code-block',
         },
       }),
-      
-      MathExtension,
+      ...MathExtension,
     ],
-    content: value,
+    content: normalizeContent(value),
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       onChange(html);
@@ -113,24 +114,20 @@ export default function AdvancedHTMLEditor({ value, onChange }: AdvancedHTMLEdit
   const addInlineMath = () => {
     const latex = window.prompt('Enter LaTeX formula (e.g., x^2 + y^2 = z^2):');
     if (latex) {
-      editor?.chain().focus().insertContent(`<span class="math-inline">$${latex}$</span>`).run();
+      editor?.chain().focus().insertContent({
+        type: 'mathInline',
+        attrs: { content: latex },
+      }).run();
     }
   };
 
   const addBlockMath = () => {
     const latex = window.prompt('Enter LaTeX formula for display mode (e.g., \\sum_{i=1}^n i = \\frac{n(n+1)}{2}):');
     if (latex) {
-      editor?.chain().focus().insertContent(`<div class="math-display">$$${latex}$$</div>`).run();
-    }
-  };
-
-  const addMermaidDiagram = () => {
-    const diagram = window.prompt(
-      'Enter Mermaid diagram code (e.g., graph TD; A-->B; B-->C;):\n\nExamples:\n- Flowchart: graph TD; A[Start]-->B[Process];\n- Sequence: sequenceDiagram; Alice->>Bob: Hello;'
-    );
-    if (diagram) {
-      // Insert as a code block with mermaid language
-      editor?.chain().focus().insertContent(`<pre><code class="language-mermaid">${diagram}</code></pre>`).run();
+      editor?.chain().focus().insertContent({
+        type: 'mathBlock',
+        attrs: { content: latex },
+      }).run();
     }
   };
 
@@ -335,14 +332,6 @@ export default function AdvancedHTMLEditor({ value, onChange }: AdvancedHTMLEdit
           <span className="text-lg font-bold text-gray-700">∑</span>
         </button>
         <button
-          onClick={addMermaidDiagram}
-          className="p-2.5 rounded hover:bg-gray-200 transition-colors"
-          title="Insert Mermaid Diagram"
-          type="button"
-        >
-          <GitBranch className="w-5 h-5 text-gray-700" />
-        </button>
-        <button
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           className={`p-2.5 rounded hover:bg-gray-200 transition-colors ${editor.isActive('codeBlock') ? 'bg-gray-300' : ''}`}
           title="Code Block"
@@ -393,10 +382,10 @@ export default function AdvancedHTMLEditor({ value, onChange }: AdvancedHTMLEdit
 
       {/* Info */}
       <div className="border-t bg-gray-50 px-4 py-2 text-xs text-gray-600">
-        <p>
-          ✨ <strong>Features:</strong> Copy-paste content, LaTeX math (inline: $x^2$, block: $$\sum_i^n i$$), 
-          Code blocks with syntax highlighting, Mermaid diagrams. Click <FileCode className="w-3 h-3 inline" /> to view/edit raw HTML.
-        </p>
+        <span>
+          ✨ <strong>Features:</strong> Copy-paste content, LaTeX math (inline: $x^2$, block: $$\sum_i^n i$$),{' '}
+          Code blocks with syntax highlighting. Click <FileCode className="w-3 h-3 inline" /> to view/edit raw HTML.
+        </span>
       </div>
 
       {/* Custom Styles */}
