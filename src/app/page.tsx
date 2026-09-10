@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, PlayCircle } from 'lucide-react';
+import { ArrowRight, HeartHandshake, PlayCircle } from 'lucide-react';
 import PricingSection from '@/components/PricingSection';
 import PricingComparison from '@/components/PricingComparison';
 import { join } from 'node:path';
