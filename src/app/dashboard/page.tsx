@@ -286,12 +286,12 @@ export default async function DashboardPage({
 
         {/* Active entitlements */}
         {active.length > 0 && (
-          <section>
+          <section className="min-w-0">
             <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
               <Star className="h-5 w-5 text-amber-500" />
               Active Access
             </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2">
               {active.map((e) => (
                 <EntitlementCard key={e.id} item={e} />
               ))}
@@ -401,7 +401,7 @@ function EntitlementCard({ item }: { item: MyEntitlementItem }) {
 
   return (
     <div
-      className={`rounded-xl border p-4 ${
+      className={`min-w-0 overflow-hidden rounded-xl border p-4 ${
         isExpired
           ? 'border-slate-200 bg-slate-50 opacity-70'
           : 'border-indigo-100 bg-white shadow-sm'
@@ -413,7 +413,7 @@ function EntitlementCard({ item }: { item: MyEntitlementItem }) {
             {classLabel}
           </p>
           <p className="mt-0.5 font-bold text-slate-900 truncate">{scopeLabel}</p>
-          <p className="text-sm text-slate-500 mt-0.5">{item.plan.name}</p>
+          <p className="mt-0.5 break-words text-sm text-slate-500">{item.plan.name}</p>
         </div>
         <div className="flex-shrink-0">
           {isExpired ? (

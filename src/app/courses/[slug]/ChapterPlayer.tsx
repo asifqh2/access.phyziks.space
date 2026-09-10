@@ -137,12 +137,13 @@ function useVisibilityGuard(
 interface CustomControlsProps {
   videoRef:     React.RefObject<HTMLVideoElement | null>;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  lastVolumeRef: React.MutableRefObject<number>;
   title:        string;
   visible:      boolean;             // controlled by parent (ProtectedVideoShell)
   onActivity:   () => void;          // call to reset the hide timer
 }
 
-function CustomControls({ videoRef, containerRef, title, visible, onActivity }: CustomControlsProps) {
+function CustomControls({ videoRef, containerRef, lastVolumeRef, title, visible, onActivity }: CustomControlsProps) {
   const [playing,    setPlaying]    = useState(false);
   const [muted,      setMuted]      = useState(false);
   const [volume,     setVolume]     = useState(1);
@@ -161,7 +162,6 @@ function CustomControls({ videoRef, containerRef, title, visible, onActivity }: 
   // Track position ref — drives the visual track synchronously so skip()
   // updates are reflected immediately without waiting for a React re-render.
   const currentRef = useRef(0);
-
   const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
   // Attach video event listeners. We use a MutationObserver / polling fallback
@@ -180,10 +180,15 @@ function CustomControls({ videoRef, containerRef, title, visible, onActivity }: 
       if (!v.paused) setPlaying(true);
       setMuted(v.muted);
       setVolume(v.volume);
+      if (v.volume > 0) lastVolumeRef.current = v.volume;
 
       const onPlay     = () => setPlaying(true);
       const onPause    = () => setPlaying(false);
-      const onVolume   = () => { setMuted(v.muted); setVolume(v.volume); };
+      const onVolume   = () => {
+        setMuted(v.muted);
+        setVolume(v.volume);
+        if (v.volume > 0) lastVolumeRef.current = v.volume;
+      };
       const onTime     = () => {
         currentRef.current = v.currentTime;
         setCurrent(v.currentTime);
@@ -254,13 +259,20 @@ function CustomControls({ videoRef, containerRef, title, visible, onActivity }: 
   function toggleMute() {
     const v = videoRef.current;
     if (!v) return;
-    v.muted = !v.muted;
+    if (v.muted || v.volume === 0) {
+      v.volume = lastVolumeRef.current || 1;
+      v.muted = false;
+    } else {
+      if (v.volume > 0) lastVolumeRef.current = v.volume;
+      v.muted = true;
+    }
   }
 
   function onVolumeChange(e: React.ChangeEvent<HTMLInputElement>) {
     const v = videoRef.current;
     if (!v) return;
     const val = parseFloat(e.target.value);
+    if (val > 0) lastVolumeRef.current = val;
     v.volume = val;
     v.muted  = val === 0;
   }
@@ -401,7 +413,7 @@ function CustomControls({ videoRef, containerRef, title, visible, onActivity }: 
             <input
               type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume}
               onChange={onVolumeChange}
-              className="w-0 group-hover/vol:w-16 transition-all duration-200 h-1 accent-indigo-400 cursor-pointer"
+              className="h-1 w-16 accent-indigo-400 cursor-pointer sm:w-0 sm:transition-all sm:duration-200 sm:group-hover/vol:w-16"
               aria-label="Volume"
             />
           </div>
@@ -532,11 +544,12 @@ interface ProtectedVideoShellProps {
   userId:      string;
   loading:     boolean;
   error:       string | null;
+  onRetry?:    () => void;
   children:    React.ReactNode;
 }
 
 function ProtectedVideoShell({
-  videoRef, containerRef: containerRefProp, title, userId, loading, error, children,
+  videoRef, containerRef: containerRefProp, title, userId, loading, error, onRetry, children,
 }: ProtectedVideoShellProps) {
   const internalContainerRef = useRef<HTMLDivElement>(null);
   // Use the caller-supplied ref if provided; otherwise fall back to the internal one.
@@ -547,6 +560,7 @@ function ProtectedVideoShell({
   const [controlsVisible, setControlsVisible] = useState(true);
   const hideTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPausedRef = useRef(true);
+  const lastVolumeRef = useRef(1);
 
   const resetHideTimer = useCallback(() => {
     setControlsVisible(true);
@@ -644,16 +658,28 @@ function ProtectedVideoShell({
       case 'ArrowUp':
         e.preventDefault();
         v.volume = Math.min(1, v.volume + 0.1);
+        if (v.volume > 0) {
+          lastVolumeRef.current = v.volume;
+          v.muted = false;
+        }
         resetHideTimer();
         break;
       case 'ArrowDown':
         e.preventDefault();
+        if (v.volume > 0) lastVolumeRef.current = v.volume;
         v.volume = Math.max(0, v.volume - 0.1);
+        v.muted = v.volume === 0;
         resetHideTimer();
         break;
       case 'm':
         e.preventDefault();
-        v.muted = !v.muted;
+        if (v.muted || v.volume === 0) {
+          v.volume = lastVolumeRef.current || 1;
+          v.muted = false;
+        } else {
+          if (v.volume > 0) lastVolumeRef.current = v.volume;
+          v.muted = true;
+        }
         resetHideTimer();
         break;
       case 'f':
@@ -715,6 +741,16 @@ function ProtectedVideoShell({
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
           <AlertCircle className="h-8 w-8 text-red-400 mb-2" />
           <p className="text-slate-300 text-sm">{error}</p>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+            >
+              <Loader2 className="h-4 w-4" />
+              Retry video
+            </button>
+          )}
         </div>
       )}
 
@@ -732,6 +768,7 @@ function ProtectedVideoShell({
           <CustomControls
             videoRef={videoRef}
             containerRef={containerRef}
+            lastVolumeRef={lastVolumeRef}
             title={title}
             visible={controlsVisible}
             onActivity={resetHideTimer}
@@ -784,6 +821,7 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
   const videoRef              = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { userId }            = useAuth();
   // Hold the HLS instance in a ref so it can be destroyed synchronously on cleanup
   const hlsRef                = useRef<import('hls.js').default | null>(null);
@@ -884,7 +922,7 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenUrl, topicId, subtopicId]);
+  }, [tokenUrl, topicId, subtopicId, retryCount]);
 
   return (
     <ProtectedVideoShell
@@ -893,6 +931,7 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
       userId={userId ?? 'guest'}
       loading={loading}
       error={error}
+      onRetry={() => setRetryCount((count) => count + 1)}
     >
       <video
         ref={videoRef}
@@ -926,6 +965,7 @@ function ChapterIntroVideo({ chapter }: { chapter: CourseChapter }) {
   const [data,    setData]    = useState<VideoApiData | null>(null);
   const [error,   setError]   = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   const { userId }            = useAuth();
   // Ref used by ProtectedVideoShell for R2 videos
   const r2VideoRef            = useRef<HTMLVideoElement>(null);
@@ -942,7 +982,7 @@ function ChapterIntroVideo({ chapter }: { chapter: CourseChapter }) {
       })
       .catch((e: unknown) => setError(e instanceof Error ? e.message : 'Failed to load video.'))
       .finally(() => setLoading(false));
-  }, [chapter.id, chapter.b2VideoKey, chapter.videoKey, chapter.youtubeUrl, hasVideo]);
+  }, [chapter.id, chapter.b2VideoKey, chapter.videoKey, chapter.youtubeUrl, hasVideo, retryCount]);
 
   // ── No video yet ──────────────────────────────────────────────────────────
   if (!hasVideo) {
@@ -1002,6 +1042,14 @@ function ChapterIntroVideo({ chapter }: { chapter: CourseChapter }) {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
           <AlertCircle className="h-8 w-8 text-red-400 mb-2" />
           <p className="text-slate-300 text-sm">{error}</p>
+          <button
+            type="button"
+            onClick={() => setRetryCount((count) => count + 1)}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+          >
+            <Loader2 className="h-4 w-4" />
+            Retry video
+          </button>
         </div>
       )}
       {!loading && !error && data?.type === 'youtube' && data.youtubeVideoId && (

@@ -36,11 +36,11 @@ export default function HeaderClient({ isAdmin }: HeaderClientProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-5 px-4">
+      <div className="container mx-auto flex h-16 min-w-0 items-center justify-between gap-3 px-4 sm:gap-5">
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center" aria-label="Phyziks home">
-          <Image src="/logo.svg" alt="Phyziks.space" width={160} height={40} priority className="h-8 w-auto sm:h-10" />
+        <Link href="/" className="flex min-w-0 shrink items-center" aria-label="Phyziks home">
+          <Image src="/logo.svg" alt="Phyziks.space" width={160} height={40} priority className="h-8 w-auto max-w-[42vw] sm:h-10 sm:max-w-none" />
         </Link>
 
         {/* Desktop nav */}
@@ -68,11 +68,11 @@ export default function HeaderClient({ isAdmin }: HeaderClientProps) {
         </nav>
 
         {/* Desktop auth controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <SignedIn>
             <Link
               href="/dashboard"
-              className="hidden items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 sm:inline-flex"
+              className="hidden items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 md:inline-flex"
             >
               <LogIn className="h-4 w-4" />
               Continue learning
@@ -82,12 +82,12 @@ export default function HeaderClient({ isAdmin }: HeaderClientProps) {
 
           <SignedOut>
             <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
-              <button className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700 sm:block">
+              <button className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700 md:block">
                 Sign in
               </button>
             </SignInButton>
             <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
-              <button className="hidden rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 sm:block">
+              <button className="hidden rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 md:block">
                 Create account
               </button>
             </SignUpButton>
