@@ -17,7 +17,7 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { razorpay, verifyWebhookSignature } from '@/lib/razorpay';
+import { getRazorpayClient, verifyWebhookSignature } from '@/lib/razorpay';
 import { createEntitlementsForOrder } from '@/lib/entitlement';
 
 export async function POST(request: Request) {
@@ -96,7 +96,7 @@ async function handlePaymentCaptured(event: WebhookEvent): Promise<NextResponse>
 
   // ── Verify amount with Razorpay API (prevent amount manipulation) ─────────
   try {
-    const rzpOrder = await razorpay.orders.fetch(razorpayOrderId);
+    const rzpOrder = await getRazorpayClient().orders.fetch(razorpayOrderId);
     const rzpAmountPaise = Number(rzpOrder.amount);
 
     if (rzpAmountPaise !== order.amountPaise) {

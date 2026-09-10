@@ -16,7 +16,7 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { razorpay } from '@/lib/razorpay';
+import { getRazorpayClient } from '@/lib/razorpay';
 import { requireUser } from '@/lib/auth-helpers';
 import { Prisma } from '../../../../../generated/prisma/client';
 import type { CreateOrderRequest } from '@/types/lms';
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
   // amount is in fils (smallest AED unit). Razorpay requires an integer.
   let rzpOrder: { id: string; amount: number | string; currency: string };
   try {
-    rzpOrder = await razorpay.orders.create({
+    rzpOrder = await getRazorpayClient().orders.create({
       amount:   plan.pricePaise,
       currency: plan.currency || 'AED',
       receipt:  `rcpt_${Date.now()}_${userId.slice(-6)}`,

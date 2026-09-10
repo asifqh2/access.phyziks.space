@@ -1,27 +1,36 @@
 import crypto from 'node:crypto';
 import Razorpay from 'razorpay';
 
-// ── Fail fast if required secrets are missing ────────────────────────────────
-// An empty string secret would allow attackers to forge valid HMAC signatures.
-const RAZORPAY_KEY_ID      = process.env.RAZORPAY_KEY_ID      ?? '';
-const RAZORPAY_KEY_SECRET  = process.env.RAZORPAY_KEY_SECRET  ?? '';
-const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET ?? '';
-
-if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-  throw new Error('RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set.');
-}
-if (!RAZORPAY_WEBHOOK_SECRET) {
-  throw new Error('RAZORPAY_WEBHOOK_SECRET must be set — an empty secret allows forged webhooks.');
+function getRazorpayCredentials() {
+  const keyId = process.env.RAZORPAY_KEY_ID ?? '';
+  const keySecret = process.env.RAZORPAY_KEY_SECRET ?? '';
+  if (!keyId || !keySecret) {
+    throw new Error('RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set.');
+  }
+  return { keyId, keySecret };
 }
 
-export const razorpay = new Razorpay({
-  key_id:     RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET,
-});
+function getWebhookSecret() {
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET ?? '';
+  if (!webhookSecret) {
+    throw new Error('RAZORPAY_WEBHOOK_SECRET must be set — an empty secret allows forged webhooks.');
+  }
+  return webhookSecret;
+}
+
+let razorpayClient: Razorpay | undefined;
+
+export function getRazorpayClient() {
+  if (razorpayClient) return razorpayClient;
+
+  const { keyId, keySecret } = getRazorpayCredentials();
+  razorpayClient = new Razorpay({ key_id: keyId, key_secret: keySecret });
+  return razorpayClient;
+}
 
 export function verifyWebhookSignature(body: string, signature: string) {
   const expected = crypto
-    .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
+    .createHmac('sha256', getWebhookSecret())
     .update(body)
     .digest('hex');
   const actual         = Buffer.from(signature);
@@ -31,7 +40,7 @@ export function verifyWebhookSignature(body: string, signature: string) {
 
 export function verifyPaymentSignature(subscriptionId: string, paymentId: string, signature: string) {
   const expected = crypto
-    .createHmac('sha256', RAZORPAY_KEY_SECRET)
+    .createHmac('sha256', getRazorpayCredentials().keySecret)
     .update(`${subscriptionId}|${paymentId}`)
     .digest('hex');
   const actual         = Buffer.from(signature);
@@ -41,7 +50,7 @@ export function verifyPaymentSignature(subscriptionId: string, paymentId: string
 
 export function verifyOrderSignature(orderId: string, paymentId: string, signature: string) {
   const expected = crypto
-    .createHmac('sha256', RAZORPAY_KEY_SECRET)
+    .createHmac('sha256', getRazorpayCredentials().keySecret)
     .update(`${orderId}|${paymentId}`)
     .digest('hex');
   const actual         = Buffer.from(signature);

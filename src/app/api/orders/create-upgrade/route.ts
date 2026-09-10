@@ -20,7 +20,7 @@
 
 import { NextResponse } from 'next/server';
 import { prisma }       from '@/lib/prisma';
-import { razorpay }     from '@/lib/razorpay';
+import { getRazorpayClient } from '@/lib/razorpay';
 import { requireUser }  from '@/lib/auth-helpers';
 
 const MAX_CHAPTERS_FOR_UPGRADE = 7;
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
   // ── 7. Create Razorpay order ──────────────────────────────────────────────
   let rzpOrder: { id: string; amount: number | string; currency: string };
   try {
-    rzpOrder = await razorpay.orders.create({
+    rzpOrder = await getRazorpayClient().orders.create({
       amount:   finalFils,
       currency: 'AED',
       receipt:  `upg_sub_${Date.now()}_${userId.slice(-6)}`,
