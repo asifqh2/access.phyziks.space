@@ -32,15 +32,16 @@
 
 import { prisma } from '@/lib/prisma';
 
-// ── Fail fast at module load if required env vars are missing ────────────────
-// An empty TOKEN_SECRET would let anyone forge valid video tokens.
-if (!process.env.VIDEO_TOKEN_SECRET) {
-  throw new Error('VIDEO_TOKEN_SECRET must be set — an empty secret allows forged video tokens.');
-}
-
-const TOKEN_SECRET = process.env.VIDEO_TOKEN_SECRET;
 const TTL_SEC      = parseInt(process.env.VIDEO_TOKEN_TTL_SECONDS ?? '900', 10);
 const CDN_URL      = (process.env.NEXT_PUBLIC_CDN_URL ?? '').replace(/\/$/, '');
+
+function getTokenSecret() {
+  const tokenSecret = process.env.VIDEO_TOKEN_SECRET;
+  if (!tokenSecret) {
+    throw new Error('VIDEO_TOKEN_SECRET must be set — an empty secret allows forged video tokens.');
+  }
+  return tokenSecret;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // generateVideoToken
@@ -61,6 +62,7 @@ export async function generateVideoToken(opts: {
   topicId?:    string;
   subtopicId?: string;
 }): Promise<{ token: string; hlsUrl: string; expiresAt: Date }> {
+  const tokenSecret = getTokenSecret();
   if (!CDN_URL) throw new Error('NEXT_PUBLIC_CDN_URL is not configured.');
 
   // ── Reuse an existing valid token if one exists (at least 5 min remaining) ─
@@ -98,7 +100,7 @@ export async function generateVideoToken(opts: {
     userId:    opts.clerkUserId,
     exp,
   });
-  const signature = await hmacSign(`${header}.${payload}`, TOKEN_SECRET);
+  const signature = await hmacSign(`${header}.${payload}`, tokenSecret);
   const token     = `${header}.${payload}.${signature}`;
 
   // Persist — allows audit / future revocation
@@ -135,7 +137,8 @@ export async function verifyVideoToken(token: string): Promise<{
   userId?:    string;
   exp?:       number;
 }> {
-  if (!TOKEN_SECRET) return { valid: false };
+  const tokenSecret = process.env.VIDEO_TOKEN_SECRET;
+  if (!tokenSecret) return { valid: false };
 
   const parts = token.split('.');
   if (parts.length !== 3) return { valid: false };
@@ -144,7 +147,7 @@ export async function verifyVideoToken(token: string): Promise<{
   const data = `${headerB64}.${payloadB64}`;
 
   // Verify signature
-  const expectedSig = await hmacSign(data, TOKEN_SECRET);
+  const expectedSig = await hmacSign(data, tokenSecret);
   if (!timingSafeEqual(expectedSig, sigB64)) return { valid: false };
 
   // Decode payload
