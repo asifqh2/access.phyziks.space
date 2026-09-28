@@ -1,19 +1,18 @@
 // src/app/api/orders/create/route.ts
 //
-<<<<<<< HEAD
+
 // Creates a pending Order in the database and a gateway order.
 // Supports Razorpay (default) and Cashfree.
-=======
+
 // Creates a pending Order in the database and a Razorpay order.
 // All payments are in AED via Razorpay.
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
 //
 // Security guarantees:
 //   - User identity comes from Clerk server-side auth(), never from the request body.
 //   - Price comes from the Plan row in the database, never from the client.
 //   - Scope (chapterId / subjectId / chapterIds) is validated against the plan's scopeType.
 //
-<<<<<<< HEAD
 // Response shape (Razorpay):
 //   { gateway:'razorpay', razorpayOrderId, amount, currency, keyId }
 //
@@ -24,24 +23,24 @@
 // After payment, the client calls:
 //   Razorpay  → POST /api/payments/verify
 //   Cashfree  → POST /api/payments/cashfree-verify
-=======
+
 // Response shape:
 //   { razorpayOrderId, amount, currency, keyId }
 //
 // The client uses these to open the Razorpay JS SDK modal.
 // After the user pays, the client calls POST /api/payments/verify.
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getRazorpayClient } from '@/lib/razorpay';
-<<<<<<< HEAD
+
 import { createCashfreeOrder } from '@/lib/cashfree';
 import { requireUser } from '@/lib/auth-helpers';
 import { clerkClient } from '@clerk/nextjs/server';
-=======
+
 import { requireUser } from '@/lib/auth-helpers';
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
 import { Prisma } from '../../../../../generated/prisma/client';
 import type { CreateOrderRequest } from '@/types/lms';
 
@@ -58,11 +57,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-<<<<<<< HEAD
+
   const { planId, chapterId, subjectId, chapterIds, classId, gateway = 'razorpay', customerPhone } = body;
-=======
+
   const { planId, chapterId, subjectId, chapterIds, classId } = body;
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
 
   if (!planId || typeof planId !== 'string') {
     return NextResponse.json({ error: 'planId is required.' }, { status: 400 });
@@ -119,12 +118,11 @@ export async function POST(request: Request) {
     resolvedClassId   = subject.classId;
 
   } else if (plan.scopeType === 'CHAPTER_COMBO') {
-<<<<<<< HEAD
+
     const planMeta      = plan.metadata as Record<string, unknown> | null;
-=======
+
     // ── CHAPTER_COMBO: user picks a subject and exactly N chapters from it ──
     const planMeta = plan.metadata as Record<string, unknown> | null;
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
     const requiredCount = typeof planMeta?.chapterCount === 'number' ? planMeta.chapterCount : 5;
 
     if (!subjectId || typeof subjectId !== 'string') {
@@ -140,11 +138,9 @@ export async function POST(request: Request) {
       );
     }
 
-<<<<<<< HEAD
-=======
+
     // Validate subject
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
-    const subject = await prisma.subject.findUnique({
+   const subject = await prisma.subject.findUnique({
       where: { id: subjectId },
       include: { class: true },
     });
@@ -152,10 +148,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Subject not found.' }, { status: 404 });
     }
 
-<<<<<<< HEAD
-=======
+
     // Validate all chapters belong to this subject and are active
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
     const chapters = await prisma.chapter.findMany({
       where: { id: { in: chapterIds }, subjectId, isActive: true },
       select: { id: true },
@@ -172,10 +167,9 @@ export async function POST(request: Request) {
     orderMetadata     = { chapterIds } as Prisma.InputJsonValue;
   }
 
-<<<<<<< HEAD
-=======
+
   // ── COMPLETE plan: user picks a class ────────────────────────────────────
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
   if (plan.scopeType === 'COMPLETE') {
     if (!classId || typeof classId !== 'string') {
       return NextResponse.json(
@@ -190,7 +184,7 @@ export async function POST(request: Request) {
     resolvedClassId = lmsClass.id;
   }
 
-<<<<<<< HEAD
+
   const receipt = `rcpt_${Date.now()}_${userId.slice(-6)}`;
 
   // ── 5a. Razorpay path ──────────────────────────────────────────────────────
@@ -278,7 +272,7 @@ export async function POST(request: Request) {
     console.error('[orders/create] Cashfree order creation failed:', err);
     return NextResponse.json(
       { error: 'Unable to create Cashfree payment order. Please try again.' },
-=======
+
   // ── 5. Create a Razorpay order ─────────────────────────────────────────────
   // amount is in fils (smallest AED unit). Razorpay requires an integer.
   let rzpOrder: { id: string; amount: number | string; currency: string };
@@ -298,16 +292,16 @@ export async function POST(request: Request) {
     console.error('[orders/create] Razorpay order creation failed:', err);
     return NextResponse.json(
       { error: 'Unable to create payment order. Please try again.' },
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
       { status: 502 },
     );
   }
 
-<<<<<<< HEAD
+
   // Store cfOrderId as gatewayOrderId so webhook lookup works
-=======
+
   // ── 6. Persist a pending Order in DB ──────────────────────────────────────
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
   await prisma.order.create({
     data: {
       clerkUserId:    userId,
@@ -317,7 +311,7 @@ export async function POST(request: Request) {
       chapterId:      resolvedChapterId,
       metadata:       orderMetadata,
       amountPaise:    plan.pricePaise,
-<<<<<<< HEAD
+
       currency:       plan.currency || 'INR',
       status:         'PENDING',
       gatewayOrderId: receipt,   // use our receipt as the lookup key
@@ -332,7 +326,7 @@ export async function POST(request: Request) {
     amount:           plan.pricePaise,
     currency:         plan.currency || 'INR',
     appId:            process.env.CASHFREE_APP_ID ?? '',
-=======
+
       currency:       plan.currency || 'AED',
       status:         'PENDING',
       gatewayOrderId: rzpOrder.id,
@@ -345,6 +339,6 @@ export async function POST(request: Request) {
     amount:          rzpOrder.amount,
     currency:        rzpOrder.currency,
     keyId:           process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? process.env.RAZORPAY_KEY_ID ?? '',
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
   });
 }

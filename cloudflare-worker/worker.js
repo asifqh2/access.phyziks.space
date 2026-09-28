@@ -1,6 +1,6 @@
 /**
  * Cloudflare Worker — phyziks.space HLS Video Proxy
- * ==========================================================
+ * ==
  *
  * Architecture:
  *   Student browser  →  cdn.phyziks.space/videos/*  →  this Worker
@@ -21,7 +21,7 @@
  *   B2_ENDPOINT    — https://s3.<region>.backblazeb2.com
  *   B2_BUCKET_NAME — your private B2 bucket name
  *   ALLOWED_ORIGIN — https://phyziks.space
- * ==========================================================
+ * ==
  */
 
 // ─────────────────────────────────────────────────────────────────────────────

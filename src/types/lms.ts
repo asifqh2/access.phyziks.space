@@ -185,13 +185,12 @@ export interface CreateOrderRequest {
   subjectIds?: string[];
   /** Array of chapter IDs for CHAPTER_COMBO plans */
   chapterIds?: string[];
-<<<<<<< HEAD
+
   /** Payment gateway the user selected. Defaults to 'razorpay'. */
   gateway?: 'razorpay' | 'cashfree';
   /** Customer phone — required by Cashfree */
   customerPhone?: string;
-=======
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
 }
 
 export interface CreateOrderResponse {

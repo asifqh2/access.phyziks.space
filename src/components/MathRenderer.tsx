@@ -1,10 +1,10 @@
 'use client';
 
-<<<<<<< HEAD
+
 import { useLayoutEffect, useRef } from 'react';
-=======
+
 import { useEffect, useRef, useCallback } from 'react';
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
@@ -13,7 +13,7 @@ interface MathRendererProps {
   className?: string;
 }
 
-<<<<<<< HEAD
+
 /**
  * Render all math in an HTML string and return the result.
  * Pure string → string; never reads from the DOM.
@@ -143,7 +143,7 @@ function renderMathInHtml(rawContent: string): string {
   }
 
   return html;
-=======
+
 function decodeHtmlEntities(text: string): string {
   const textarea = document.createElement('textarea');
   textarea.innerHTML = text;
@@ -153,12 +153,12 @@ function decodeHtmlEntities(text: string): string {
   decoded = decoded.replace(/\\\\/g, '\\');
   
   return decoded;
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
 }
 
 export default function MathRenderer({ content, className = '' }: MathRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-<<<<<<< HEAD
+
   const renderedForRef = useRef<string | null>(null);
 
   // useLayoutEffect is synchronous (runs before paint), so the user never sees
@@ -174,7 +174,7 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
     <>
       {/* Empty div — innerHTML is always written synchronously by useLayoutEffect */}
       <div
-=======
+
   const processedRef = useRef<boolean>(false);
 
   const processMath = useCallback(() => {
@@ -367,25 +367,25 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
   return (
     <>
       <div 
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
         ref={containerRef}
         data-math-rendered
         className={`prose prose-lg max-w-none text-gray-900 overflow-x-auto ${className}`}
       />
       <style jsx global>{`
-<<<<<<< HEAD
+
         .katex-display-block {
           margin: 0.5em 0;
-=======
+
         /* Optimized math rendering styles */
         .katex-display-block {
           margin: 0.1em 0;
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
           overflow-x: auto;
           overflow-y: hidden;
           text-align: center;
         }
-<<<<<<< HEAD
+
 
         .katex-inline { display: inline-block; margin: 0; }
 
@@ -402,7 +402,7 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
         @media (max-width: 768px) {
           .katex-display-block { font-size: 0.9em; margin: 0.6em 0; }
           .katex-inline { font-size: 0.9em; }
-=======
+
         
         .katex-inline {
           display: inline-block;
@@ -441,13 +441,13 @@ export default function MathRenderer({ content, className = '' }: MathRendererPr
         /* Prevent layout shifts */
         .katex {
           will-change: auto;
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
         }
       `}</style>
     </>
   );
-<<<<<<< HEAD
+
 }
-=======
+
 }
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 

@@ -1,11 +1,11 @@
 'use client';
 
 // src/components/ContentRenderer.tsx
-<<<<<<< HEAD
+
 import { useLayoutEffect, useRef } from 'react';
-=======
+
 import { useEffect, useRef, useCallback } from 'react';
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
@@ -14,7 +14,7 @@ interface ContentRendererProps {
   className?: string;
 }
 
-<<<<<<< HEAD
+
 /**
  * Render all math in an HTML string and return the result.
  * Pure string → string transformation; never touches the DOM.
@@ -64,7 +64,7 @@ function renderMathInHtml(rawHtml: string): string {
 
   if (!alreadyRendered) {
     // \[...\] block
-=======
+
 export default function ContentRenderer({ content, className = '' }: ContentRendererProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const processedRef = useRef<boolean>(false);
@@ -111,12 +111,12 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
     // These come from plain-text editors and legacy content.
 
     // \[...\]  block
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
     html = html.replace(/\\\[([\s\S]{0,2000}?)\\\]/g, (_match, latex) => {
       try {
         const clean = latex.trim();
         if (!clean) return _match;
-<<<<<<< HEAD
+
         return `<div class="math-block math-rendered">${katex.renderToString(clean, {
           displayMode: true, throwOnError: false, strict: false,
         })}</div>`;
@@ -124,18 +124,18 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
     });
 
     // \(...\) inline
-=======
+
         return `<div class="math-block math-rendered">${katex.renderToString(clean, { displayMode: true, throwOnError: false, strict: false })}</div>`;
       } catch { return `<div class="math-error">${latex}</div>`; }
     });
 
     // \(...\)  inline
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
     html = html.replace(/\\\(([^\\]{0,500}?)\\\)/g, (_match, latex) => {
       try {
         const clean = latex.trim();
         if (!clean) return _match;
-<<<<<<< HEAD
+
         return `<span class="math-inline math-rendered">${katex.renderToString(clean, {
           displayMode: false, throwOnError: false, strict: false,
         })}</span>`;
@@ -143,18 +143,18 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
     });
 
     // $$...$$ block — before single $
-=======
+
         return `<span class="math-inline math-rendered">${katex.renderToString(clean, { displayMode: false, throwOnError: false, strict: false })}</span>`;
       } catch { return `<span class="math-error">${latex}</span>`; }
     });
 
     // $$...$$ block (must come before single-$ to avoid double-matching)
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
     html = html.replace(/\$\$([\s\S]{0,2000}?)\$\$/g, (_match, latex) => {
       try {
         const clean = latex.trim();
         if (!clean) return _match;
-<<<<<<< HEAD
+
         return `<div class="math-block math-rendered">${katex.renderToString(clean, {
           displayMode: true, throwOnError: false, strict: false,
         })}</div>`;
@@ -162,18 +162,18 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
     });
 
     // $...$ inline — single dollar, no newlines, max 200 chars
-=======
+
         return `<div class="math-block math-rendered">${katex.renderToString(clean, { displayMode: true, throwOnError: false, strict: false })}</div>`;
       } catch { return `<div class="math-error">${latex}</div>`; }
     });
 
     // $...$ inline (single dollar, no newlines, max 200 chars)
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
     html = html.replace(/\$([^\$\n\r]{1,200})\$/g, (_match, latex) => {
       try {
         const clean = latex.trim();
         if (!clean) return _match;
-<<<<<<< HEAD
+
         return `<span class="math-inline math-rendered">${katex.renderToString(clean, {
           displayMode: false, throwOnError: false, strict: false,
         })}</span>`;
@@ -206,7 +206,7 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
         ref={divRef}
         className={`prose prose-lg max-w-none ${className}`}
         data-content-renderer
-=======
+
         return `<span class="math-inline math-rendered">${katex.renderToString(clean, { displayMode: false, throwOnError: false, strict: false })}</span>`;
       } catch { return `<span class="math-error">${latex}</span>`; }
     });
@@ -248,18 +248,18 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
         className={`prose prose-lg max-w-none ${className}`}
         data-content-renderer
         dangerouslySetInnerHTML={{ __html: content }}
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
         style={{
           '--tw-prose-body': '#1f2937',
           '--tw-prose-headings': '#111827',
         } as React.CSSProperties}
       />
       <style jsx global>{`
-<<<<<<< HEAD
+
         .prose[data-content-renderer] { will-change: auto; }
 
         .prose[data-content-renderer] h1 {
-=======
+
         /* Optimized styles for mobile performance */
         .prose[data-content-renderer] {
           will-change: auto;
@@ -268,14 +268,14 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
         
         .prose[data-content-renderer] h1, .prose[data-content-renderer] h1 * {
           color: #111827 !important;
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
           background: linear-gradient(135deg, #1f2937 0%, #7c3aed 50%, #ec4899 100%) !important;
           -webkit-background-clip: text !important;
           -webkit-text-fill-color: transparent !important;
           background-clip: text !important;
         }
 
-<<<<<<< HEAD
+
         /* KaTeX inside gradient headings must stay visible */
         .prose[data-content-renderer] h1 .katex,
         .prose[data-content-renderer] h1 .katex * {
@@ -330,7 +330,7 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
     </>
   );
 }
-=======
+
         .prose[data-content-renderer] h2, .prose[data-content-renderer] h2 * {
           color: #1f2937 !important;
         }
@@ -459,4 +459,4 @@ export default function ContentRenderer({ content, className = '' }: ContentRend
     </>
   );
 }
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+ 
