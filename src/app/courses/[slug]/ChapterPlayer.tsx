@@ -878,17 +878,10 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
         if (destroyed || !videoRef.current) return;
 
         const hls = new Hls({
-
           startLevel:             -1,           // overridden in MANIFEST_PARSED to highest level
           abrEwmaDefaultEstimate: 8_000_000,
           abrBandWidthFactor:     0.95,
           abrBandWidthUpFactor:   0.85,
-
-          startLevel:             -1,           // -1 = auto ABR picks the best starting level
-          abrEwmaDefaultEstimate: 5_000_000,    // assume 5 Mbps initial bandwidth
-          abrBandWidthFactor:     0.9,
-          abrBandWidthUpFactor:   0.7,
- 
           maxBufferLength:        30,
           maxMaxBufferLength:     60,
         });
@@ -899,23 +892,16 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
         hls.loadSource(hlsUrl);
         hls.attachMedia(video);
 
-
         hls.on(Hls.Events.MANIFEST_PARSED, (_event, data) => {
           if (!destroyed) {
             // Force highest quality level immediately — avoids blur-then-sharpen on load.
-            // hls.js level 0 = lowest; last level = highest (1080p).
-            // After the first few segments ABR takes over naturally.
             const highestLevel = data.levels.length - 1;
             hls.startLevel    = highestLevel;
-            hls.currentLevel  = highestLevel;   // lock for first segment
+            hls.currentLevel  = highestLevel;
             // Release ABR control after 8 seconds so it can drop down on slow connections
             setTimeout(() => {
-              if (!destroyed) hls.currentLevel = -1; // -1 = back to auto ABR
+              if (!destroyed) hls.currentLevel = -1;
             }, 8000);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (!destroyed) {
- 
             setLoading(false);
             video.play().catch(() => {});
           }

@@ -90,13 +90,6 @@ async function uploadFile(localPath: string, b2Key: string, retries = 4) {
       `content-type:${mime}\nhost:${B2_HOST}\nx-amz-content-sha256:${bodyHash}\nx-amz-date:${timeStamp}\n`;
     const signedHeaders = 'content-type;host;x-amz-content-sha256;x-amz-date';
     const canonicalRequest = ['PUT', objectPath, '', canonicalHeaders, signedHeaders, bodyHash].join('\n');
-
-    const encodedPath = `/${B2_BUCKET}/${b2Key.split('/').map(encodeURIComponent).join('/')}`;
-    const canonicalHeaders =
-      `content-type:${mime}\nhost:${B2_HOST}\nx-amz-content-sha256:${bodyHash}\nx-amz-date:${timeStamp}\n`;
-    const signedHeaders = 'content-type;host;x-amz-content-sha256;x-amz-date';
-    const canonicalRequest = ['PUT', encodedPath, '', canonicalHeaders, signedHeaders, bodyHash].join('\n');
- 
     const credScope = `${dateStamp}/${B2_REGION}/s3/aws4_request`;
     const strToSign = ['AWS4-HMAC-SHA256', timeStamp, credScope, sha256hex(canonicalRequest)].join('\n');
     const sig  = hmacHex(getSigningKey(dateStamp) as Buffer, strToSign);
@@ -145,28 +138,6 @@ async function uploadFile(localPath: string, b2Key: string, retries = 4) {
   }
 
   throw lastError;
-
-    const res = await fetch(`https://${B2_HOST}/${b2Key}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type':         mime,
-        'x-amz-date':           timeStamp,
-        'x-amz-content-sha256': bodyHash,
-        'Authorization':        auth,
-        'Content-Length':       String(body.length),
-      },
-      body,
-      // @ts-ignore
-      duplex: 'half',
-    });
-
-    if (res.ok) return;
-
-    const text = await res.text();
-    if (attempt === retries) throw new Error(`B2 HTTP ${res.status}: ${text.slice(0, 200)}`);
-    await new Promise(r => setTimeout(r, attempt * 2000));
-  }
- 
 }
 
 async function* walkDir(dir: string): AsyncGenerator<string> {

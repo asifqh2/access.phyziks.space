@@ -1,12 +1,7 @@
 // src/app/api/orders/create/route.ts
 //
-
 // Creates a pending Order in the database and a gateway order.
 // Supports Razorpay (default) and Cashfree.
-
-// Creates a pending Order in the database and a Razorpay order.
-// All payments are in AED via Razorpay.
-
 //
 // Security guarantees:
 //   - User identity comes from Clerk server-side auth(), never from the request body.
@@ -18,29 +13,13 @@
 //
 // Response shape (Cashfree):
 //   { gateway:'cashfree', cfOrderId, paymentSessionId, orderId, amount, currency, appId }
-//
-// The client uses these to open the respective SDK checkout.
-// After payment, the client calls:
-//   Razorpay  → POST /api/payments/verify
-//   Cashfree  → POST /api/payments/cashfree-verify
-
-// Response shape:
-//   { razorpayOrderId, amount, currency, keyId }
-//
-// The client uses these to open the Razorpay JS SDK modal.
-// After the user pays, the client calls POST /api/payments/verify.
-
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getRazorpayClient } from '@/lib/razorpay';
-
 import { createCashfreeOrder } from '@/lib/cashfree';
 import { requireUser } from '@/lib/auth-helpers';
 import { clerkClient } from '@clerk/nextjs/server';
-
-import { requireUser } from '@/lib/auth-helpers';
-
 import { Prisma } from '../../../../../generated/prisma/client';
 import type { CreateOrderRequest } from '@/types/lms';
 
@@ -57,11 +36,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-
   const { planId, chapterId, subjectId, chapterIds, classId, gateway = 'razorpay', customerPhone } = body;
-
-  const { planId, chapterId, subjectId, chapterIds, classId } = body;
-
 
   if (!planId || typeof planId !== 'string') {
     return NextResponse.json({ error: 'planId is required.' }, { status: 400 });
@@ -84,10 +59,7 @@ export async function POST(request: Request) {
 
   if (plan.scopeType === 'CHAPTER') {
     if (!chapterId || typeof chapterId !== 'string') {
-      return NextResponse.json(
-        { error: 'chapterId is required for a chapter plan.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'chapterId is required for a chapter plan.' }, { status: 400 });
     }
     const chapter = await prisma.chapter.findUnique({
       where: { id: chapterId },
@@ -102,15 +74,9 @@ export async function POST(request: Request) {
 
   } else if (plan.scopeType === 'SUBJECT') {
     if (!subjectId || typeof subjectId !== 'string') {
-      return NextResponse.json(
-        { error: 'subjectId is required for a subject plan.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'subjectId is required for a subject plan.' }, { status: 400 });
     }
-    const subject = await prisma.subject.findUnique({
-      where: { id: subjectId },
-      include: { class: true },
-    });
+    const subject = await prisma.subject.findUnique({ where: { id: subjectId }, include: { class: true } });
     if (!subject || !subject.isActive) {
       return NextResponse.json({ error: 'Subject not found.' }, { status: 404 });
     }
@@ -118,48 +84,27 @@ export async function POST(request: Request) {
     resolvedClassId   = subject.classId;
 
   } else if (plan.scopeType === 'CHAPTER_COMBO') {
-
     const planMeta      = plan.metadata as Record<string, unknown> | null;
-
-    // ── CHAPTER_COMBO: user picks a subject and exactly N chapters from it ──
-    const planMeta = plan.metadata as Record<string, unknown> | null;
     const requiredCount = typeof planMeta?.chapterCount === 'number' ? planMeta.chapterCount : 5;
 
     if (!subjectId || typeof subjectId !== 'string') {
-      return NextResponse.json(
-        { error: 'subjectId is required for a chapter combo plan.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'subjectId is required for a chapter combo plan.' }, { status: 400 });
     }
     if (!Array.isArray(chapterIds) || chapterIds.length !== requiredCount) {
-      return NextResponse.json(
-        { error: `Exactly ${requiredCount} chapterIds are required for this plan.` },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: `Exactly ${requiredCount} chapterIds are required for this plan.` }, { status: 400 });
     }
 
-
-    // Validate subject
-   const subject = await prisma.subject.findUnique({
-      where: { id: subjectId },
-      include: { class: true },
-    });
+    const subject = await prisma.subject.findUnique({ where: { id: subjectId }, include: { class: true } });
     if (!subject || !subject.isActive) {
       return NextResponse.json({ error: 'Subject not found.' }, { status: 404 });
     }
-
-
-    // Validate all chapters belong to this subject and are active
 
     const chapters = await prisma.chapter.findMany({
       where: { id: { in: chapterIds }, subjectId, isActive: true },
       select: { id: true },
     });
     if (chapters.length !== requiredCount) {
-      return NextResponse.json(
-        { error: 'One or more selected chapters are invalid or do not belong to the chosen subject.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'One or more selected chapters are invalid or do not belong to the chosen subject.' }, { status: 400 });
     }
 
     resolvedSubjectId = subject.id;
@@ -167,15 +112,9 @@ export async function POST(request: Request) {
     orderMetadata     = { chapterIds } as Prisma.InputJsonValue;
   }
 
-
-  // ── COMPLETE plan: user picks a class ────────────────────────────────────
-
   if (plan.scopeType === 'COMPLETE') {
     if (!classId || typeof classId !== 'string') {
-      return NextResponse.json(
-        { error: 'classId is required for the Complete Class Package.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'classId is required for the Complete Class Package.' }, { status: 400 });
     }
     const lmsClass = await prisma.lmsClass.findUnique({ where: { id: classId } });
     if (!lmsClass || !lmsClass.isActive) {
@@ -183,7 +122,6 @@ export async function POST(request: Request) {
     }
     resolvedClassId = lmsClass.id;
   }
-
 
   const receipt = `rcpt_${Date.now()}_${userId.slice(-6)}`;
 
@@ -204,10 +142,7 @@ export async function POST(request: Request) {
       });
     } catch (err) {
       console.error('[orders/create] Razorpay order creation failed:', err);
-      return NextResponse.json(
-        { error: 'Unable to create payment order. Please try again.' },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: 'Unable to create payment order. Please try again.' }, { status: 502 });
     }
 
     await prisma.order.create({
@@ -235,7 +170,6 @@ export async function POST(request: Request) {
   }
 
   // ── 5b. Cashfree path ──────────────────────────────────────────────────────
-  // Fetch user details from Clerk for Cashfree customer info
   let customerName  = 'Customer';
   let customerEmail = '';
   let customerPhoneResolved = customerPhone ?? '9999999999';
@@ -252,8 +186,6 @@ export async function POST(request: Request) {
     // Non-fatal — Cashfree allows placeholder values
   }
 
-  // Derive the app origin from the incoming request so the return URL always
-  // points back to the domain the user is on (cbse.phyziks.space, localhost, etc.)
   const requestOrigin = new URL(request.url).origin;
   const returnUrl     = `${requestOrigin}/dashboard?payment=success&order_id={order_id}`;
 
@@ -270,37 +202,8 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error('[orders/create] Cashfree order creation failed:', err);
-    return NextResponse.json(
-      { error: 'Unable to create Cashfree payment order. Please try again.' },
-
-  // ── 5. Create a Razorpay order ─────────────────────────────────────────────
-  // amount is in fils (smallest AED unit). Razorpay requires an integer.
-  let rzpOrder: { id: string; amount: number | string; currency: string };
-  try {
-    rzpOrder = await getRazorpayClient().orders.create({
-      amount:   plan.pricePaise,
-      currency: plan.currency || 'AED',
-      receipt:  `rcpt_${Date.now()}_${userId.slice(-6)}`,
-      notes: {
-        planId,
-        ...(resolvedClassId   ? { classId:   resolvedClassId   } : {}),
-        ...(resolvedSubjectId ? { subjectId: resolvedSubjectId } : {}),
-        ...(resolvedChapterId ? { chapterId: resolvedChapterId } : {}),
-      },
-    });
-  } catch (err) {
-    console.error('[orders/create] Razorpay order creation failed:', err);
-    return NextResponse.json(
-      { error: 'Unable to create payment order. Please try again.' },
- 
-      { status: 502 },
-    );
+    return NextResponse.json({ error: 'Unable to create Cashfree payment order. Please try again.' }, { status: 502 });
   }
-
-
-  // Store cfOrderId as gatewayOrderId so webhook lookup works
-
-  // ── 6. Persist a pending Order in DB ──────────────────────────────────────
 
   await prisma.order.create({
     data: {
@@ -311,10 +214,9 @@ export async function POST(request: Request) {
       chapterId:      resolvedChapterId,
       metadata:       orderMetadata,
       amountPaise:    plan.pricePaise,
-
       currency:       plan.currency || 'INR',
       status:         'PENDING',
-      gatewayOrderId: receipt,   // use our receipt as the lookup key
+      gatewayOrderId: receipt,
     },
   });
 
@@ -326,19 +228,5 @@ export async function POST(request: Request) {
     amount:           plan.pricePaise,
     currency:         plan.currency || 'INR',
     appId:            process.env.CASHFREE_APP_ID ?? '',
-
-      currency:       plan.currency || 'AED',
-      status:         'PENDING',
-      gatewayOrderId: rzpOrder.id,
-    },
-  });
-
-  // ── 7. Return what the client needs to open the Razorpay modal ────────────
-  return NextResponse.json({
-    razorpayOrderId: rzpOrder.id,
-    amount:          rzpOrder.amount,
-    currency:        rzpOrder.currency,
-    keyId:           process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? process.env.RAZORPAY_KEY_ID ?? '',
-
   });
 }
