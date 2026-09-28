@@ -23,10 +23,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-helpers';
-<<<<<<< HEAD
+
 import { deleteB2Folder } from '@/lib/b2-delete';
-=======
->>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
