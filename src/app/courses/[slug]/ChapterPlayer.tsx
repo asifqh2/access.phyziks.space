@@ -878,10 +878,17 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
         if (destroyed || !videoRef.current) return;
 
         const hls = new Hls({
+<<<<<<< HEAD
           startLevel:             -1,           // overridden in MANIFEST_PARSED to highest level
           abrEwmaDefaultEstimate: 8_000_000,
           abrBandWidthFactor:     0.95,
           abrBandWidthUpFactor:   0.85,
+=======
+          startLevel:             -1,           // -1 = auto ABR picks the best starting level
+          abrEwmaDefaultEstimate: 5_000_000,    // assume 5 Mbps initial bandwidth
+          abrBandWidthFactor:     0.9,
+          abrBandWidthUpFactor:   0.7,
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
           maxBufferLength:        30,
           maxMaxBufferLength:     60,
         });
@@ -892,6 +899,7 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
         hls.loadSource(hlsUrl);
         hls.attachMedia(video);
 
+<<<<<<< HEAD
         hls.on(Hls.Events.MANIFEST_PARSED, (_event, data) => {
           if (!destroyed) {
             // Force highest quality level immediately — avoids blur-then-sharpen on load.
@@ -904,6 +912,10 @@ function HlsPlayer({ tokenUrl, title, topicId, subtopicId }: HlsPlayerProps) {
             setTimeout(() => {
               if (!destroyed) hls.currentLevel = -1; // -1 = back to auto ABR
             }, 8000);
+=======
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (!destroyed) {
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
             setLoading(false);
             video.play().catch(() => {});
           }

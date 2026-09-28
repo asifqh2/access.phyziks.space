@@ -24,12 +24,18 @@
 import { NextResponse }  from 'next/server';
 import { requireAdmin }  from '@/lib/auth-helpers';
 import { prisma }        from '@/lib/prisma';
+<<<<<<< HEAD
 import { deleteB2Folder } from '@/lib/b2-delete';
+=======
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
 import { spawn }         from 'child_process';
 import { readdir, readFile, stat } from 'fs/promises';
 import { join, basename, dirname } from 'path';
 import { createHmac, createHash } from 'crypto';
+<<<<<<< HEAD
 import { request as httpsRequest } from 'https';
+=======
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
 import { existsSync, mkdirSync }   from 'fs';
 
 // ── B2 upload config (read from env) ─────────────────────────────────────────
@@ -67,24 +73,36 @@ async function uploadFile(localPath: string, b2Key: string, retries = 4) {
   const bodyHash = sha256hex(body);
   const mime     = mimeType(basename(localPath));
 
+<<<<<<< HEAD
   let lastError: Error = new Error('Upload failed');
 
+=======
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
   for (let attempt = 1; attempt <= retries; attempt++) {
     const now       = new Date();
     const pad       = (n: number) => String(n).padStart(2, '0');
     const dateStamp = `${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}`;
     const timeStamp = `${dateStamp}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
 
+<<<<<<< HEAD
     const objectPath  = `/${b2Key.split('/').map(encodeURIComponent).join('/')}`;
     const canonicalHeaders =
       `content-type:${mime}\nhost:${B2_HOST}\nx-amz-content-sha256:${bodyHash}\nx-amz-date:${timeStamp}\n`;
     const signedHeaders = 'content-type;host;x-amz-content-sha256;x-amz-date';
     const canonicalRequest = ['PUT', objectPath, '', canonicalHeaders, signedHeaders, bodyHash].join('\n');
+=======
+    const encodedPath = `/${B2_BUCKET}/${b2Key.split('/').map(encodeURIComponent).join('/')}`;
+    const canonicalHeaders =
+      `content-type:${mime}\nhost:${B2_HOST}\nx-amz-content-sha256:${bodyHash}\nx-amz-date:${timeStamp}\n`;
+    const signedHeaders = 'content-type;host;x-amz-content-sha256;x-amz-date';
+    const canonicalRequest = ['PUT', encodedPath, '', canonicalHeaders, signedHeaders, bodyHash].join('\n');
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
     const credScope = `${dateStamp}/${B2_REGION}/s3/aws4_request`;
     const strToSign = ['AWS4-HMAC-SHA256', timeStamp, credScope, sha256hex(canonicalRequest)].join('\n');
     const sig  = hmacHex(getSigningKey(dateStamp) as Buffer, strToSign);
     const auth = `AWS4-HMAC-SHA256 Credential=${B2_KEY_ID}/${credScope}, SignedHeaders=${signedHeaders}, Signature=${sig}`;
 
+<<<<<<< HEAD
     try {
       // Use Node's https.request instead of fetch — avoids duplex/Buffer issues on Node 18+
       await new Promise<void>((resolve, reject) => {
@@ -127,6 +145,28 @@ async function uploadFile(localPath: string, b2Key: string, retries = 4) {
   }
 
   throw lastError;
+=======
+    const res = await fetch(`https://${B2_HOST}/${b2Key}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type':         mime,
+        'x-amz-date':           timeStamp,
+        'x-amz-content-sha256': bodyHash,
+        'Authorization':        auth,
+        'Content-Length':       String(body.length),
+      },
+      body,
+      // @ts-ignore
+      duplex: 'half',
+    });
+
+    if (res.ok) return;
+
+    const text = await res.text();
+    if (attempt === retries) throw new Error(`B2 HTTP ${res.status}: ${text.slice(0, 200)}`);
+    await new Promise(r => setTimeout(r, attempt * 2000));
+  }
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
 }
 
 async function* walkDir(dir: string): AsyncGenerator<string> {
@@ -201,6 +241,7 @@ export async function POST(request: Request) {
       }
 
       try {
+<<<<<<< HEAD
         // ── PRE-STEP: Delete old B2 folder if re-uploading ─────────────────
         // Fetch the existing b2VideoKey from DB — if it exists, clean up the
         // old folder in B2 before uploading new files.
@@ -223,6 +264,8 @@ export async function POST(request: Request) {
           send('log', `   Removed ${deleted} old file(s) from B2.`);
         }
 
+=======
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
         // ── STEP 1: FFmpeg ─────────────────────────────────────────────────
         send('log', `📁 Output directory: ${localOutDir}`);
 
@@ -237,6 +280,7 @@ export async function POST(request: Request) {
           const ffmpegArgs = [
             '-y',
             '-i', videoPath,
+<<<<<<< HEAD
             // ── Video: 3 quality levels (1080p / 480p / 270p) ──────────────
             // Dropped 720p — 1080p + 480p covers 95% of devices for lecture content.
             // Added 270p as the lowest rung for very slow connections.
@@ -271,12 +315,30 @@ export async function POST(request: Request) {
             // ── HLS packaging ──────────────────────────────────────────────
             '-f', 'hls',
             '-hls_time', '4',                       // 4s segments = faster seeking
+=======
+            '-filter_complex',
+            '[0:v]split=4[v1][v2][v3][v4];[v1]scale=1920:1080[v1out];[v2]scale=1280:720[v2out];[v3]scale=854:480[v3out];[v4]scale=640:360[v4out]',
+            '-map', '[v1out]', '-map', '0:a', '-c:v:0', 'libx264', '-crf', '20', '-preset', 'fast',
+            '-b:v:0', '5000k', '-maxrate:v:0', '5350k', '-bufsize:v:0', '7500k', '-c:a:0', 'aac', '-b:a:0', '192k',
+            '-map', '[v2out]', '-map', '0:a', '-c:v:1', 'libx264', '-crf', '22', '-preset', 'fast',
+            '-b:v:1', '2800k', '-maxrate:v:1', '2996k', '-bufsize:v:1', '4200k', '-c:a:1', 'aac', '-b:a:1', '128k',
+            '-map', '[v3out]', '-map', '0:a', '-c:v:2', 'libx264', '-crf', '24', '-preset', 'fast',
+            '-b:v:2', '1400k', '-maxrate:v:2', '1498k', '-bufsize:v:2', '2100k', '-c:a:2', 'aac', '-b:a:2', '128k',
+            '-map', '[v4out]', '-map', '0:a', '-c:v:3', 'libx264', '-crf', '26', '-preset', 'fast',
+            '-b:v:3', '700k',  '-maxrate:v:3', '749k',  '-bufsize:v:3', '1050k', '-c:a:3', 'aac', '-b:a:3', '96k',
+            '-f', 'hls',
+            '-hls_time', '6',
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
             '-hls_playlist_type', 'vod',
             '-hls_flags', 'independent_segments',
             '-hls_segment_type', 'mpegts',
             '-hls_segment_filename', 'stream_%v/seg%03d.ts',
             '-master_pl_name', 'master.m3u8',
+<<<<<<< HEAD
             '-var_stream_map', 'v:0,a:0 v:1,a:1 v:2,a:2',
+=======
+            '-var_stream_map', 'v:0,a:0 v:1,a:1 v:2,a:2 v:3,a:3',
+>>>>>>> 6216b8c007f5bb90ad5e2b3a7f0273f86f173749
             'stream_%v/index.m3u8',
           ];
 
