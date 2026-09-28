@@ -1,0 +1,443 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model LmsClass {
+  id                   String                @id @default(cuid())
+  name                 String
+  slug                 String                @unique
+  isActive             Boolean               @default(true)
+  sortOrder            Int                   @default(0)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  completePackageItems CompletePackageItem[]
+  entitlements         Entitlement[]
+  orders               Order[]
+  subjects             Subject[]
+}
+
+model Subject {
+  id                   String                @id @default(cuid())
+  classId              String
+  name                 String
+  slug                 String
+  isActive             Boolean               @default(true)
+  sortOrder            Int                   @default(0)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  chapters             Chapter[]
+  completePackageItems CompletePackageItem[]
+  entitlements         Entitlement[]
+  orders               Order[]
+  class                LmsClass              @relation(fields: [classId], references: [id])
+
+  @@unique([classId, slug])
+  @@index([classId])
+}
+
+model Chapter {
+  id                   String                @id @default(cuid())
+  subjectId            String
+  name                 String
+  slug                 String
+  isActive             Boolean               @default(true)
+  sortOrder            Int                   @default(0)
+  isFree               Boolean               @default(false)
+  testPanelEnabled     Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  videoKey             String?
+  youtubeUrl           String?
+  b2VideoKey           String?   // Backblaze B2 HLS path, e.g. "videos/clxyz123/master.m3u8"
+  description          String?
+  subject              Subject               @relation(fields: [subjectId], references: [id])
+  completePackageItems CompletePackageItem[]
+  entitlements         Entitlement[]
+  orders               Order[]
+  topics               Topic[]
+  worksheets           Worksheet[]
+  exams                Exam[]
+
+  @@unique([subjectId, slug])
+  @@index([subjectId])
+}
+
+model Topic {
+  id             String      @id @default(cuid())
+  chapterId      String
+  title          String
+  slug           String
+  description    String?
+  youtubeVideoId String?
+  b2VideoKey     String?   // Backblaze B2 HLS path for topic-level video
+  duration       Int?
+  sortOrder      Int         @default(0)
+  isActive       Boolean     @default(true)
+  isFree         Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  subtopics      Subtopic[]
+  progress       UserProgress[]
+  worksheets     Worksheet[]
+  exams          Exam[]
+  chapter        Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, slug])
+  @@index([chapterId])
+}
+
+model Subtopic {
+  id             String      @id @default(cuid())
+  topicId        String
+  title          String
+  slug           String
+  description    String?
+  youtubeVideoId String?
+  b2VideoKey     String?   // Backblaze B2 HLS path for subtopic-level video
+  duration       Int?
+  sortOrder      Int         @default(0)
+  isActive       Boolean     @default(true)
+  isFree         Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  topic          Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  progress       UserProgress[]
+  worksheets     Worksheet[]
+  exams          Exam[]
+
+  @@unique([topicId, slug])
+  @@index([topicId])
+}
+
+// A Worksheet belongs to exactly one of: Chapter, Topic, or Subtopic.
+// content stores rich HTML produced by the TipTap editor (same as description fields).
+model Worksheet {
+  id         String    @id @default(cuid())
+  chapterId  String?
+  topicId    String?
+  subtopicId String?
+  title      String
+  content    String    // rich HTML
+  sortOrder  Int       @default(0)
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  chapter    Chapter?  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  topic      Topic?    @relation(fields: [topicId],   references: [id], onDelete: Cascade)
+  subtopic   Subtopic? @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId])
+  @@index([topicId])
+  @@index([subtopicId])
+}
+
+model Plan {
+  id                   String                @id @default(cuid())
+  name                 String
+  slug                 String                @unique
+  scopeType            PlanScopeType
+  pricePaise           Int
+  currency             String                @default("INR")
+  durationDays         Int?
+  isPermanent          Boolean               @default(false)
+  isActive             Boolean               @default(true)
+  description          String?
+  metadata             Json?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  completePackageItems CompletePackageItem[]
+  entitlements         Entitlement[]
+  orders               Order[]
+
+  @@index([isActive])
+  @@index([scopeType])
+}
+
+model CompletePackageItem {
+  id        String           @id @default(cuid())
+  planId    String
+  scope     PackageItemScope
+  classId   String?
+  subjectId String?
+  chapterId String?
+  createdAt DateTime         @default(now())
+  chapter   Chapter?         @relation(fields: [chapterId], references: [id])
+  class     LmsClass?        @relation(fields: [classId], references: [id])
+  plan      Plan             @relation(fields: [planId], references: [id])
+  subject   Subject?         @relation(fields: [subjectId], references: [id])
+
+  @@index([planId])
+  @@index([planId, classId])
+  @@index([planId, subjectId])
+  @@index([planId, chapterId])
+}
+
+model Order {
+  id               String        @id @default(cuid())
+  clerkUserId      String
+  planId           String
+  classId          String?
+  subjectId        String?
+  chapterId        String?
+  metadata         Json?
+  amountPaise      Int
+  currency         String        @default("INR")
+  status           OrderStatus   @default(PENDING)
+  gatewayOrderId   String        @unique
+  gatewayPaymentId String?
+  webhookProcessed Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  entitlements     Entitlement[]
+  chapter          Chapter?      @relation(fields: [chapterId], references: [id])
+  class            LmsClass?     @relation(fields: [classId], references: [id])
+  plan             Plan          @relation(fields: [planId], references: [id])
+  subject          Subject?      @relation(fields: [subjectId], references: [id])
+
+  @@index([clerkUserId])
+  @@index([clerkUserId, status])
+  @@index([gatewayOrderId])
+  @@index([status])
+}
+
+model Entitlement {
+  id          String            @id @default(cuid())
+  clerkUserId String
+  orderId     String
+  planId      String
+  scopeType   EntitlementScope
+  classId     String?
+  subjectId   String?
+  chapterId   String?
+  startsAt    DateTime          @default(now())
+  expiresAt   DateTime?
+  isPermanent Boolean           @default(false)
+  status      EntitlementStatus @default(ACTIVE)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  chapter     Chapter?          @relation(fields: [chapterId], references: [id])
+  class       LmsClass?         @relation(fields: [classId], references: [id])
+  order       Order             @relation(fields: [orderId], references: [id])
+  plan        Plan              @relation(fields: [planId], references: [id])
+  subject     Subject?          @relation(fields: [subjectId], references: [id])
+
+  @@index([clerkUserId])
+  @@index([clerkUserId, status])
+  @@index([clerkUserId, chapterId])
+  @@index([clerkUserId, subjectId])
+  @@index([expiresAt])
+  @@index([orderId])
+}
+
+model LegacyPaymentEntitlement {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  plan                 String
+  razorpaySubscription String    @unique
+  status               String
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  selectedClass        String?
+  subject              String?
+  chapter              String?
+
+  @@map("_LegacyPaymentEntitlement")
+}
+
+model UserProgress {
+  id          String   @id @default(cuid())
+  clerkUserId String
+  // One of topicId or subtopicId is set; the other is null.
+  topicId     String?
+  subtopicId  String?
+  completedAt DateTime @default(now())
+  topic       Topic?   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  subtopic    Subtopic? @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+
+  // Unique per user+item so upsert never double-counts
+  @@unique([clerkUserId, topicId])
+  @@unique([clerkUserId, subtopicId])
+  @@index([clerkUserId])
+  @@index([topicId])
+  @@index([subtopicId])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Test Panel models
+// ─────────────────────────────────────────────────────────────────────────────
+
+// An Exam belongs to exactly one of: chapterId, topicId, or subtopicId.
+// It contains a list of ExamQuestion records.
+model Exam {
+  id               String         @id @default(cuid())
+  // Parent — exactly one of the three must be set
+  chapterId        String?
+  topicId          String?
+  subtopicId       String?
+  title            String
+  description      String?
+  format           ExamFormat     @default(STANDARD)
+  caseStudyImageUrl String?       // Blogger/external image URL for Case Study format
+  timeLimit        Int            @default(30)    // minutes; 0 = unlimited
+  passingScore     Int            @default(60)    // percentage 0-100
+  shuffleQuestions Boolean        @default(false)
+  isActive         Boolean        @default(true)
+  sortOrder        Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  chapter          Chapter?       @relation(fields: [chapterId],  references: [id], onDelete: Cascade)
+  topic            Topic?         @relation(fields: [topicId],    references: [id], onDelete: Cascade)
+  subtopic         Subtopic?      @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  questions        ExamQuestion[]
+  attempts         ExamAttempt[]
+
+  @@index([chapterId])
+  @@index([topicId])
+  @@index([subtopicId])
+}
+
+model ExamQuestion {
+  id            String           @id @default(cuid())
+  examId        String
+  question      String           // rich HTML — supports LaTeX via ContentRenderer
+  type          ExamQuestionType @default(MCQ)
+  options       Json             // string[] for MCQ/TF; pairs for matching
+  correctAnswer Json             // string | string[] depending on type
+  explanation   String?          // rich HTML shown after answering
+  marks         Int              @default(1)
+  sortOrder     Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  exam          Exam             @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@index([examId])
+}
+
+// Records a single student attempt at an exam
+model ExamAttempt {
+  id           String   @id @default(cuid())
+  examId       String
+  clerkUserId  String
+  answers      Json     // { questionId: answer } map
+  score        Int      // raw marks obtained
+  totalMarks   Int      // max possible marks
+  percentage   Float    // 0-100
+  passed       Boolean
+  timeTaken    Int?     // seconds
+  completedAt  DateTime @default(now())
+  exam         Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@index([examId])
+  @@index([clerkUserId])
+  @@index([clerkUserId, examId])
+}
+
+enum ExamQuestionType {
+  MCQ              // single-answer multiple choice
+  MULTI_SELECT     // multiple correct answers
+  TRUE_FALSE
+  SHORT_ANSWER     // text input (keyword match)
+  FILL_IN_BLANK    // student fills a blank embedded in the question; graded by keyword match
+  MATCHING         // student matches left-column items to right-column items
+  NUMERICAL        // student enters a number; graded within an accepted tolerance range
+  ASSERTION_REASON // assertion + reason; student picks from 4 standard options (A/R true/false matrix)
+}
+
+enum ExamFormat {
+  STANDARD          // regular question-by-question test
+  ASSERTION_BASED   // assertion + reason style questions
+  CASE_STUDY_BASED  // passage/image-based contextual questions
+}
+
+
+enum PlanScopeType {
+  CHAPTER
+  SUBJECT
+  COMPLETE
+  CONFIGURABLE
+  CHAPTER_COMBO
+  TEST_PANEL
+}
+
+enum OrderStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum EntitlementScope {
+  CHAPTER
+  CHAPTER_COMBO
+  SUBJECT
+  CONFIGURABLE
+  COMPLETE
+  TEST_PANEL
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum PackageItemScope {
+  CLASS
+  SUBJECT
+  CHAPTER
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VideoToken — short-lived tokens for HLS video access via Cloudflare Worker
+//
+// Flow:
+//   1. POST /api/videos/[id]/token  — verifies entitlement, creates this row,
+//      returns { token, hlsUrl, expiresAt }
+//   2. Client loads HLS manifest at:
+//        GET https://cdn.phyziks.space/videos/<chapterId>/master.m3u8?token=<token>
+//   3. Cloudflare Worker validates the token, proxies from Backblaze B2
+//   4. Row is soft-deleted or ignored once expiresAt is past
+//
+// TTL: VIDEO_TOKEN_TTL_SECONDS env var (default 900 s / 15 min)
+// ─────────────────────────────────────────────────────────────────────────────
+model VideoToken {
+  id          String   @id @default(cuid())
+  token       String   @unique              // HMAC-SHA256 signed JWT (opaque to client)
+  clerkUserId String
+  chapterId   String
+  topicId     String?                       // non-null when the token is for a topic video
+  subtopicId  String?                       // non-null when the token is for a subtopic video
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([clerkUserId])
+  @@index([chapterId])
+  @@index([expiresAt])
+}

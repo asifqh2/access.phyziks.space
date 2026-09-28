@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /search
+Disallow: /analytics
+Disallow: /create-post
+Disallow: /create-quiz
+Disallow: /admin
+
+# Host
+Host: https://www.phyziks.space
+
+# Sitemaps
+Sitemap: https://www.phyziks.space/sitemap.xml

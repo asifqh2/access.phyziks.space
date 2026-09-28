@@ -1,0 +1,6 @@
+-- CreateEnum
+CREATE TYPE "ExamFormat" AS ENUM ('STANDARD', 'ASSERTION_BASED', 'CASE_STUDY_BASED');
+
+-- AlterTable
+ALTER TABLE "Exam" ADD COLUMN "format" "ExamFormat" NOT NULL DEFAULT 'STANDARD';
+ALTER TABLE "Exam" ADD COLUMN "caseStudyImageUrl" TEXT;

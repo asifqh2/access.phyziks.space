@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Favorites</title>
+</head>
+<body>
+    <h1>Favorites Debug Tool</h1>
+    <button onclick="checkFavorites()">Check Favorites in localStorage</button>
+    <button onclick="addTestFavorite()">Add Test Favorite</button>
+    <button onclick="clearFavorites()">Clear All Favorites</button>
+    <div id="output"></div>
+
+    <script>
+        function checkFavorites() {
+            const favorites = localStorage.getItem('favoriteQuestions');
+            const output = document.getElementById('output');
+            if (favorites) {
+                const parsed = JSON.parse(favorites);
+                output.innerHTML = '<h3>Found ' + parsed.length + ' favorites:</h3><pre>' + JSON.stringify(parsed, null, 2) + '</pre>';
+            } else {
+                output.innerHTML = '<h3>No favorites found in localStorage</h3>';
+            }
+        }
+
+        function addTestFavorite() {
+            const testFavorite = {
+                id: 'test-' + Date.now(),
+                title: 'Test Physics Question',
+                content: 'What is the speed of light in vacuum?',
+                url: '/physics/test',
+                category: 'physics',
+                subject: 'Physics',
+                timestamp: new Date().toISOString()
+            };
+            
+            const existing = JSON.parse(localStorage.getItem('favoriteQuestions') || '[]');
+            existing.push(testFavorite);
+            localStorage.setItem('favoriteQuestions', JSON.stringify(existing));
+            
+            document.getElementById('output').innerHTML = '<h3>Added test favorite!</h3>';
+        }
+
+        function clearFavorites() {
+            localStorage.removeItem('favoriteQuestions');
+            document.getElementById('output').innerHTML = '<h3>Cleared all favorites!</h3>';
+        }
+    </script>
+</body>
+</html>

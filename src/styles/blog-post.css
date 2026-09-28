@@ -1,0 +1,276 @@
+/* Blog Post Layout Styles - Mobile Optimized */
+.blog-post-layout {
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+.toc-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+  /* Optimize scrolling performance */
+  -webkit-overflow-scrolling: touch;
+  contain: layout style;
+}
+
+.toc-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.toc-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toc-container::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 2px;
+}
+
+.toc-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+
+/* Enhanced prose styles for content - Mobile Optimized */
+.prose {
+  /* Optimize text rendering */
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  contain: layout style;
+}
+
+.prose h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem) !important;
+  font-weight: bold !important;
+  color: #111827 !important;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  background: linear-gradient(135deg, #1f2937 0%, #7c3aed 50%, #ec4899 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  will-change: auto;
+}
+
+/* Fix KaTeX math visibility in headings */
+.prose h1 .katex,
+.prose h1 .katex *,
+.prose h2 .katex,
+.prose h2 .katex *,
+.prose h3 .katex,
+.prose h3 .katex *,
+.prose h4 .katex,
+.prose h4 .katex * {
+  -webkit-text-fill-color: #111827 !important;
+  color: #111827 !important;
+  background: none !important;
+}
+
+.prose h2 {
+  font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
+  font-weight: bold !important;
+  color: #1f2937 !important;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.prose h3 {
+  font-size: clamp(1.125rem, 2.5vw, 1.25rem) !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.prose h4 {
+  font-size: clamp(1rem, 2vw, 1.125rem) !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 0.75rem;
+  margin-top: 1rem;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1rem) !important;
+  line-height: 1.75;
+  color: #111827 !important;
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  line-height: 1.75;
+}
+
+.prose blockquote {
+  border-left: 4px solid #8b5cf6;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin: 1rem 0;
+  background-color: #faf5ff;
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+  color: #374151;
+  contain: layout style;
+}
+
+.prose code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #7c3aed;
+  word-break: break-word;
+}
+
+.prose pre {
+  background-color: #111827;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  contain: layout style;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: #f9fafb;
+  word-break: normal;
+}
+
+/* Smooth scroll behavior with reduced motion support */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  .related-item {
+    transition: none;
+  }
+}
+
+/* Animation for related content hover - Optimized */
+.related-item {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.related-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+  .blog-post-layout {
+    /* Reduce backdrop blur on mobile for better performance */
+    backdrop-filter: none;
+  }
+  
+  .prose {
+    /* Optimize for mobile reading */
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  .prose h1 {
+    font-size: 1.5rem !important;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose h2 {
+    font-size: 1.25rem !important;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .prose h3 {
+    font-size: 1.125rem !important;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose p,
+  .prose li {
+    font-size: 0.9rem !important;
+    line-height: 1.6;
+  }
+  
+  .prose pre {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .prose code {
+    font-size: 0.8rem;
+  }
+  
+  /* Reduce margins on mobile */
+  .prose blockquote {
+    margin: 0.75rem 0;
+    padding-left: 0.75rem;
+  }
+}
+
+/* Performance optimizations for very small screens */
+@media (max-width: 480px) {
+  .prose {
+    font-size: 0.85rem;
+  }
+  
+  .prose h1 {
+    font-size: 1.25rem !important;
+  }
+  
+  .prose h2 {
+    font-size: 1.125rem !important;
+  }
+  
+  .prose h3 {
+    font-size: 1rem !important;
+  }
+  
+  .prose p,
+  .prose li {
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Optimize images for mobile */
+@media (max-width: 768px) {
+  .prose img {
+    /* Lazy loading hint */
+    content-visibility: auto;
+    contain-intrinsic-size: 300px;
+  }
+}
+
+/* Reduce animations on low-end devices */
+@media (max-width: 640px) and (max-height: 800px) {
+  .related-item {
+    transition: none;
+  }
+  
+  .related-item:hover {
+    transform: none;
+  }
+}

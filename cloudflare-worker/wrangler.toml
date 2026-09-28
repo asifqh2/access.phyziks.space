@@ -1,0 +1,19 @@
+name            = "phyziks-hls-proxy"
+main            = "worker.js"
+compatibility_date = "2024-09-01"
+workers_dev     = false
+
+# Custom domain — cdn.phyziks.space routes all traffic to this Worker
+[[routes]]
+pattern = "cdn.phyziks.space"
+custom_domain = true
+
+[vars]
+B2_ENDPOINT    = "https://s3.eu-central-003.backblazeb2.com"
+B2_BUCKET_NAME = "phyziks-videos"
+ALLOWED_ORIGIN = "https://phyziks.space"
+# Temporary — move these to secrets once confirmed working:
+#   wrangler secret put B2_APP_KEY_ID
+#   wrangler secret put B2_APP_KEY
+B2_APP_KEY_ID  = "003f9d2140141aa0000000004"
+B2_APP_KEY     = "K003x5W4f90vDALyBZVMe/uFEv00O3Q"

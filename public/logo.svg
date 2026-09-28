@@ -1,0 +1,77 @@
+<svg width="420" height="100" viewBox="0 0 420 100" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#00C2FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon -->
+  <g transform="translate(15 15)">
+
+    <!-- Circle -->
+    <circle cx="35" cy="35" r="30"
+            fill="none"
+            stroke="url(#g)"
+            stroke-width="3"/>
+
+    <!-- Vertical -->
+    <path d="M30 18 V52"
+          stroke="url(#g)"
+          stroke-width="6"
+          stroke-linecap="round"/>
+
+    <!-- P Bowl -->
+    <path d="M30 18
+             H46
+             C56 18 60 24 60 31
+             C60 39 55 45 46 45
+             H30"
+          fill="none"
+          stroke="url(#g)"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+    <!-- Wave -->
+    <path d="M8 58
+             C16 52 24 64 32 58
+             C40 52 48 64 56 58
+             C64 52 72 64 80 58"
+          fill="none"
+          stroke="#00C2FF"
+          stroke-width="3"
+          stroke-linecap="round"/>
+
+  </g>
+
+  <!-- Brand -->
+  <text x="95"
+        y="44"
+        font-family="Inter,Arial,sans-serif"
+        font-size="34"
+        font-weight="700"
+        fill="#111827">
+        Phyziks
+  </text>
+
+  <text x="238"
+        y="44"
+        font-family="Inter,Arial,sans-serif"
+        font-size="34"
+        font-weight="400"
+        fill="#2563EB">
+        .space
+  </text>
+
+  <text x="96"
+        y="66"
+        font-family="Inter,Arial,sans-serif"
+        font-size="12"
+        letter-spacing="2"
+        fill="#6B7280">
+        EXPLORE • UNDERSTAND • DISCOVER
+  </text>
+
+</svg>
